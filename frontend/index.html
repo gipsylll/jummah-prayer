@@ -81,9 +81,9 @@
         <!-- Виджеты внизу -->
         <div class="info-widgets">
             <div class="info-widget" id="qibla-widget">
-                <div class="widget-icon">🧭</div>
-                <div class="widget-label" data-i18n="Qibla Direction">Направление Киблы</div>
-                <div class="widget-value">→</div>
+                <div class="widget-icon">🕋</div>
+                <div class="widget-label" data-i18n="Distance to Makkah">Расстояние до Мекки</div>
+                <div class="widget-value" id="qibla-distance-value">---</div>
             </div>
             <div class="info-widget">
                 <div class="widget-icon">☪️</div>
@@ -108,6 +108,7 @@
         </div>
     </div>
 
+    <!-- Страница Киблы и Карты -->
     <!-- Страница Зикра -->
     <div id="dhikr-page" class="page">
         <div class="page-header">
@@ -210,6 +211,30 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                <div class="setting-item" id="notification-settings" style="display: none;">
+                    <div style="width: 100%;">
+                        <label for="notification-warning-time" data-i18n="Warning Time (minutes)">⏰ Время предупреждения (минуты):</label>
+                        <select id="notification-warning-time" class="select-input" style="margin-top: 8px;">
+                            <option value="5">5 минут</option>
+                            <option value="10">10 минут</option>
+                            <option value="15" selected>15 минут</option>
+                            <option value="30">30 минут</option>
+                            <option value="60">1 час</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="setting-item" id="sound-notification-setting" style="display: none;">
+                    <span data-i18n="Sound Notifications">🔊 Звуковые уведомления</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sound-notifications">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item" id="test-notification-setting" style="display: none;">
+                    <div style="width: 100%;">
+                        <button class="btn btn-outline" id="test-notification-btn" data-i18n="Test Notification">🔔 Тестовое уведомление</button>
+                    </div>
+                </div>
                 <div class="setting-item">
                     <span data-i18n="Interface Language">🌐 Язык интерфейса</span>
                     <select id="language-select" class="select-input">
@@ -241,10 +266,78 @@
             <span class="nav-icon">📿</span>
             <span class="nav-label" data-i18n="Dhikr">Зикры</span>
         </button>
+        <button class="nav-btn" data-page="events-page">
+            <span class="nav-icon">🌙</span>
+            <span class="nav-label" data-i18n="Islamic Events">События</span>
+        </button>
+        <button class="nav-btn" data-page="articles-page">
+            <span class="nav-icon">📚</span>
+            <span class="nav-label" data-i18n="Educational Articles">Статьи</span>
+        </button>
         <button class="nav-btn" data-page="settings-page">
             <span class="nav-icon">⚙️</span>
             <span class="nav-label" data-i18n="Settings">Настройки</span>
         </button>
+    </div>
+
+    <!-- Страница Исламских событий -->
+    <div id="events-page" class="page">
+        <div class="page-header">
+            <h1 data-i18n="Islamic Events">🌙 Исламские события</h1>
+        </div>
+        
+        <div class="events-container">
+            <!-- Отсчет до Рамадана -->
+            <div class="event-card ramadan-countdown">
+                <div class="event-card-header">
+                    <div class="event-icon">🌙</div>
+                    <div>
+                        <h2 data-i18n="Ramadan Countdown">Отсчет до Рамадана</h2>
+                        <div class="countdown-display" id="ramadan-countdown">---</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Текущие события -->
+            <div class="events-section">
+                <h2 data-i18n="Current Events">Текущие события</h2>
+                <div id="current-events-list" class="events-list">
+                    <!-- Заполняется через JavaScript -->
+                </div>
+            </div>
+
+            <!-- Ближайшие события -->
+            <div class="events-section">
+                <h2 data-i18n="Upcoming Events">Ближайшие события</h2>
+                <div id="upcoming-events-list" class="events-list">
+                    <!-- Заполняется через JavaScript -->
+                </div>
+            </div>
+
+            <!-- Календарь поста -->
+            <div class="fasting-section">
+                <h2 data-i18n="Fasting Calendar">Календарь поста</h2>
+                <div class="fasting-info" id="fasting-info">
+                    <!-- Заполняется через JavaScript -->
+                </div>
+                <div class="fasting-calendar" id="fasting-calendar">
+                    <!-- Заполняется через JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Страница Статей -->
+    <div id="articles-page" class="page">
+        <div class="page-header">
+            <h1 data-i18n="Educational Articles">📚 Образовательные материалы</h1>
+        </div>
+        
+        <div class="articles-container">
+            <div class="articles-list" id="articles-list">
+                <!-- Заполняется через JavaScript -->
+            </div>
+        </div>
     </div>
 
     <!-- Диалог выбора даты -->

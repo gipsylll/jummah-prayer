@@ -383,8 +383,9 @@ body {
 }
 
 .nav-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 /* Страницы */
@@ -400,7 +401,7 @@ body {
     font-weight: bold;
 }
 
-.settings-container, .dhikr-container {
+.settings-container, .dhikr-container, .events-container, .articles-container {
     padding: 20px;
 }
 
@@ -498,6 +499,12 @@ body {
     background-color: var(--backgroundColor);
     border-radius: var(--radiusMedium);
     margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.setting-item > div {
+    width: 100%;
+    margin-top: 8px;
 }
 
 /* Switch (переключатель) */
@@ -893,5 +900,467 @@ input:checked + .slider:before {
 
 .countdown-time {
     animation: pulse 2s infinite;
+}
+
+/* Список мечетей */
+.mosques-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+
+.mosque-item {
+    padding: 16px;
+    border-bottom: 1px solid var(--borderColor);
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.mosque-item:hover {
+    background-color: var(--backgroundColor);
+}
+
+.mosque-item:last-child {
+    border-bottom: none;
+}
+
+.mosque-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.mosque-name {
+    font-weight: 600;
+    color: var(--textColor);
+    font-size: 16px;
+    flex: 1;
+}
+
+.mosque-distance {
+    color: var(--primary-color);
+    font-weight: 500;
+    font-size: 14px;
+    margin-left: 12px;
+}
+
+.mosque-address {
+    color: var(--secondaryTextColor);
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+/* Страница Киблы */
+.qibla-container {
+    padding: 20px;
+}
+
+.qibla-info-card {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid var(--borderColor);
+    box-shadow: 0 2px 8px var(--shadowColorLight);
+}
+
+.qibla-info-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.qibla-icon {
+    font-size: 48px;
+}
+
+.qibla-info-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.qibla-distance {
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--textColor);
+    margin-top: 8px;
+}
+
+.mosques-section {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    padding: 20px;
+    border: 1px solid var(--borderColor);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.radius-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background-color: var(--backgroundColor);
+    border-radius: var(--radiusMedium);
+}
+
+.radius-selector label {
+    font-size: 14px;
+    color: var(--textColor);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.radius-selector .select-input {
+    flex: 1;
+    max-width: 200px;
+}
+
+.mosques-list-container {
+    min-height: 200px;
+}
+
+.mosques-list-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.loading-message {
+    text-align: center;
+    padding: 40px;
+    color: var(--secondaryTextColor);
+}
+
+.mosque-item-page {
+    padding: 16px;
+    background-color: var(--backgroundColor);
+    border-radius: var(--radiusMedium);
+    border: 1px solid var(--borderColor);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.mosque-item-page:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadowColorLight);
+    border-color: var(--primary-color);
+}
+
+.mosque-item-page .mosque-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.mosque-item-page .mosque-name {
+    font-weight: 600;
+    color: var(--textColor);
+    font-size: 16px;
+    flex: 1;
+}
+
+.mosque-item-page .mosque-distance {
+    color: var(--primary-color);
+    font-weight: 500;
+    font-size: 14px;
+    margin-left: 12px;
+    background-color: var(--cardColor);
+    padding: 4px 12px;
+    border-radius: var(--radiusSmall);
+}
+
+.mosque-item-page .mosque-address {
+    color: var(--secondaryTextColor);
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+/* ==================== ИСЛАМСКИЕ СОБЫТИЯ ==================== */
+
+.event-card {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--borderColor);
+}
+
+.event-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.event-icon {
+    font-size: 48px;
+}
+
+.event-card-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--textColor);
+}
+
+.countdown-display {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.countdown-days {
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.countdown-days span {
+    font-size: 16px;
+    font-weight: normal;
+    color: var(--secondaryTextColor);
+}
+
+.countdown-time {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'SF Mono', Menlo, 'Courier New', monospace;
+    color: var(--textColor);
+    margin-top: 8px;
+}
+
+.events-section {
+    margin-bottom: 24px;
+}
+
+.events-section h2 {
+    font-size: 20px;
+    color: var(--textColor);
+    margin-bottom: 16px;
+}
+
+.events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.event-item {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusMedium);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid var(--borderColor);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.event-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadowColor);
+}
+
+.event-item.current {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color)10, var(--cardColor));
+}
+
+.event-content {
+    flex: 1;
+}
+
+.event-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--textColor);
+    margin-bottom: 4px;
+}
+
+.event-date {
+    font-size: 14px;
+    color: var(--secondaryTextColor);
+}
+
+.event-days-left {
+    font-size: 12px;
+    color: var(--primary-color);
+    margin-top: 4px;
+}
+
+.event-description {
+    font-size: 13px;
+    color: var(--secondaryTextColor);
+    margin-top: 8px;
+}
+
+.no-events {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--secondaryTextColor);
+}
+
+/* Календарь поста */
+.fasting-section {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    padding: 20px;
+    border: 1px solid var(--borderColor);
+}
+
+.fasting-section h2 {
+    font-size: 20px;
+    color: var(--textColor);
+    margin-bottom: 16px;
+}
+
+.fasting-info {
+    margin-bottom: 20px;
+}
+
+.fasting-status {
+    padding: 16px;
+    background-color: var(--backgroundColor);
+    border-radius: var(--radiusMedium);
+    text-align: center;
+}
+
+.fasting-status.active {
+    background: linear-gradient(135deg, var(--primary-color)20, var(--primary-light)20);
+    border: 2px solid var(--primary-color);
+}
+
+.fasting-status h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: var(--textColor);
+}
+
+.fasting-status p {
+    margin: 0;
+    color: var(--secondaryTextColor);
+}
+
+.fasting-times {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.fasting-time-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--backgroundColor);
+    border-radius: var(--radiusMedium);
+}
+
+.fasting-time-label {
+    font-size: 14px;
+    color: var(--textColor);
+}
+
+.fasting-time-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* ==================== СТАТЬИ ==================== */
+
+.articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.article-item {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusMedium);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid var(--borderColor);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.article-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadowColor);
+    border-color: var(--primary-color);
+}
+
+.article-icon {
+    font-size: 32px;
+}
+
+.article-title {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--textColor);
+}
+
+.article-arrow {
+    font-size: 20px;
+    color: var(--secondaryTextColor);
+}
+
+.article-content {
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 40px;
+}
+
+.article-content h2 {
+    color: var(--textColor);
+    margin-top: 0;
+}
+
+.article-content h3 {
+    color: var(--textColor);
+    margin-top: 24px;
+}
+
+.article-content p {
+    color: var(--textColor);
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.article-content ul,
+.article-content ol {
+    color: var(--textColor);
+    line-height: 1.8;
+    margin-left: 20px;
+    margin-bottom: 16px;
+}
+
+.article-content li {
+    margin-bottom: 8px;
+}
+
+.article-content strong {
+    color: var(--primary-color);
 }
 

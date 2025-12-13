@@ -70,7 +70,9 @@ const appState = {
     dhikrCount: 0,
     dhikrGoal: 33,
     currentDhikr: null,
-    dhikrCounts: {} // Храним счетчики для каждого зикра
+    dhikrCounts: {}, // Храним счетчики для каждого зикра
+    notificationWarningTime: parseInt(localStorage.getItem('notificationWarningTime')) || 15, // Время предупреждения в минутах
+    soundNotifications: localStorage.getItem('soundNotifications') === 'true' // Звуковые уведомления
 };
 
 // Инициализация при загрузке
@@ -85,6 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initCitySearch();
     initGeolocation();
     initNotifications();
+    initQiblaInfo();
+    initEvents();
+    initArticles();
     
     // Обновление обратного отсчета каждую секунду
     setInterval(updateCountdown, 1000);
@@ -150,6 +155,13 @@ function switchPage(pageId) {
     if (targetPage) {
         targetPage.classList.add('active');
         appState.currentPage = pageId;
+        
+        // Обновляем страницы при переключении
+        if (pageId === 'events-page') {
+            updateEventsPage();
+        } else if (pageId === 'articles-page') {
+            renderArticles();
+        }
     }
 }
 
@@ -181,6 +193,9 @@ function updateUI() {
     if (dateElement && prayerCalc.prayerTimes.date) {
         dateElement.textContent = prayerCalc.prayerTimes.date;
     }
+    
+    // Обновление расстояния до Мекки
+    updateQiblaDistance();
 }
 
 function updatePrayerInfo() {
@@ -282,12 +297,39 @@ function initSettings() {
     
     // Уведомления
     const notificationsToggle = document.getElementById('notifications');
+    const notificationSettings = document.getElementById('notification-settings');
+    const soundNotificationSetting = document.getElementById('sound-notification-setting');
+    const testNotificationSetting = document.getElementById('test-notification-setting');
+    
     if (notificationsToggle) {
         notificationsToggle.checked = appState.notifications;
+        
+        // Показываем/скрываем дополнительные настройки
+        if (notificationSettings) {
+            notificationSettings.style.display = appState.notifications ? 'flex' : 'none';
+        }
+        if (soundNotificationSetting) {
+            soundNotificationSetting.style.display = appState.notifications ? 'flex' : 'none';
+        }
+        if (testNotificationSetting) {
+            testNotificationSetting.style.display = appState.notifications ? 'flex' : 'none';
+        }
+        
         notificationsToggle.addEventListener('change', async (e) => {
             appState.notifications = e.target.checked;
             localStorage.setItem('notifications', e.target.checked);
             updateNotificationsStatus();
+            
+            // Показываем/скрываем дополнительные настройки
+            if (notificationSettings) {
+                notificationSettings.style.display = e.target.checked ? 'flex' : 'none';
+            }
+            if (soundNotificationSetting) {
+                soundNotificationSetting.style.display = e.target.checked ? 'flex' : 'none';
+            }
+            if (testNotificationSetting) {
+                testNotificationSetting.style.display = e.target.checked ? 'flex' : 'none';
+            }
             
             if (e.target.checked) {
                 // Запрашиваем разрешение
@@ -300,6 +342,37 @@ function initSettings() {
                     schedulePrayerNotifications();
                 }
             }
+        });
+    }
+    
+    // Настройка времени предупреждения
+    const warningTimeSelect = document.getElementById('notification-warning-time');
+    if (warningTimeSelect) {
+        warningTimeSelect.value = appState.notificationWarningTime;
+        warningTimeSelect.addEventListener('change', (e) => {
+            appState.notificationWarningTime = parseInt(e.target.value);
+            localStorage.setItem('notificationWarningTime', e.target.value);
+            if (appState.notifications) {
+                schedulePrayerNotifications();
+            }
+        });
+    }
+    
+    // Звуковые уведомления
+    const soundNotificationsToggle = document.getElementById('sound-notifications');
+    if (soundNotificationsToggle) {
+        soundNotificationsToggle.checked = appState.soundNotifications;
+        soundNotificationsToggle.addEventListener('change', (e) => {
+            appState.soundNotifications = e.target.checked;
+            localStorage.setItem('soundNotifications', e.target.checked);
+        });
+    }
+    
+    // Тестовая кнопка уведомления
+    const testNotificationBtn = document.getElementById('test-notification-btn');
+    if (testNotificationBtn) {
+        testNotificationBtn.addEventListener('click', () => {
+            testNotification();
         });
     }
     
@@ -1160,6 +1233,84 @@ function updateHijriDate() {
     }
 }
 
+// Координаты Мекки (Кааба)
+const MAKKAH_COORDS = {
+    lat: 21.4225,
+    lon: 39.8262
+};
+
+// Расчет расстояния до Мекки (формула гаверсинуса)
+function calculateDistanceToMakkah(lat, lon) {
+    const R = 6371; // Радиус Земли в километрах
+    
+    const dLat = (MAKKAH_COORDS.lat - lat) * Math.PI / 180;
+    const dLon = (MAKKAH_COORDS.lon - lon) * Math.PI / 180;
+    
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat * Math.PI / 180) * Math.cos(MAKKAH_COORDS.lat * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    
+    return distance;
+}
+
+// Форматирование расстояния
+function formatDistance(km) {
+    if (km < 1) {
+        return Math.round(km * 1000) + ' м';
+    } else if (km < 1000) {
+        return Math.round(km) + ' км';
+    } else {
+        return Math.round(km / 1000) + ' тыс. км';
+    }
+}
+
+// Расчет расстояния между двумя точками
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Радиус Земли в километрах
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+// Поиск мечетей поблизости через Overpass API
+// Инициализация информации о Кибле
+function initQiblaInfo() {
+    updateQiblaDistance();
+    
+    // Обновляем при изменении местоположения
+    const originalSetLocation = prayerCalc.setLocation;
+    prayerCalc.setLocation = function(lat, lon, city) {
+        originalSetLocation.call(this, lat, lon, city);
+        updateQiblaDistance();
+    };
+}
+
+// Обновление расстояния до Мекки в виджете
+function updateQiblaDistance() {
+    const qiblaWidget = document.getElementById('qibla-widget');
+    if (!qiblaWidget) return;
+    
+    const distance = calculateDistanceToMakkah(prayerCalc.latitude, prayerCalc.longitude);
+    // Форматируем только в километрах
+    const km = (distance / 1000).toFixed(1);
+    const distanceText = `${km} км`;
+    
+    const valueEl = qiblaWidget.querySelector('.widget-value');
+    if (valueEl) {
+        valueEl.textContent = distanceText;
+        valueEl.title = `Расстояние до Мекки: ${distanceText}`;
+    }
+}
+
 // Инициализация при загрузке
 updateHijriDate();
 setInterval(updateHijriDate, 86400000); // Обновляем раз в день
@@ -1237,21 +1388,120 @@ function schedulePrayerNotifications() {
             prayerTime.setDate(prayerTime.getDate() + 1);
         }
         
-        // Уведомление за 15 минут
-        const notify15Min = new Date(prayerTime.getTime() - 15 * 60 * 1000);
-        if (notify15Min > now) {
-            scheduleNotification(notify15Min, tr(prayer.name), tr('Prayer in 15 minutes'));
+        // Уведомление за настроенное время (по умолчанию 15 минут)
+        const warningTime = appState.notificationWarningTime || 15;
+        const notifyWarning = new Date(prayerTime.getTime() - warningTime * 60 * 1000);
+        if (notifyWarning > now) {
+            scheduleNotification(notifyWarning, tr(prayer.name), tr('Prayer in') + ' ' + warningTime + ' ' + tr('minutes'));
         }
         
-        // Уведомление за 5 минут
+        // Уведомление за 5 минут (всегда)
         const notify5Min = new Date(prayerTime.getTime() - 5 * 60 * 1000);
-        if (notify5Min > now) {
+        if (notify5Min > now && notify5Min.getTime() !== notifyWarning.getTime()) {
             scheduleNotification(notify5Min, tr(prayer.name), tr('Prayer in 5 minutes'));
         }
         
         // Уведомление в время молитвы
         scheduleNotification(prayerTime, tr(prayer.name), tr('Time for prayer'));
     });
+}
+
+// Воспроизведение звука уведомления
+function playNotificationSound() {
+    if (!appState.soundNotifications) return;
+    
+    try {
+        // Создаем AudioContext для генерации звука
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Настраиваем звук (мягкий тон)
+        oscillator.frequency.value = 800; // Частота в Гц
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+        
+        // Второй тон через небольшую задержку
+        setTimeout(() => {
+            const oscillator2 = audioContext.createOscillator();
+            const gainNode2 = audioContext.createGain();
+            
+            oscillator2.connect(gainNode2);
+            gainNode2.connect(audioContext.destination);
+            
+            oscillator2.frequency.value = 1000;
+            oscillator2.type = 'sine';
+            
+            gainNode2.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator2.start(audioContext.currentTime);
+            oscillator2.stop(audioContext.currentTime + 0.5);
+        }, 200);
+    } catch (error) {
+        console.error('Ошибка воспроизведения звука:', error);
+    }
+}
+
+// Тестовое уведомление
+function testNotification() {
+    // Проверяем разрешение на уведомления
+    if (!('Notification' in window)) {
+        alert('Ваш браузер не поддерживает уведомления');
+        return;
+    }
+    
+    if (Notification.permission === 'denied') {
+        alert('Уведомления заблокированы. Разрешите уведомления в настройках браузера.');
+        return;
+    }
+    
+    if (Notification.permission === 'default') {
+        Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+                showTestNotification();
+            } else {
+                alert('Разрешение на уведомления не предоставлено');
+            }
+        });
+    } else {
+        showTestNotification();
+    }
+}
+
+// Показать тестовое уведомление
+function showTestNotification() {
+    // Воспроизводим звук, если включено
+    playNotificationSound();
+    
+    const title = tr('Test Notification') || 'Тестовое уведомление';
+    const body = tr('This is a test notification') || 'Это тестовое уведомление. Если вы видите это сообщение, уведомления работают правильно!';
+    
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then((registration) => {
+            registration.showNotification(title, {
+                body: body,
+                icon: '/icon-192.png',
+                badge: '/icon-32x32.png',
+                tag: 'test-notification',
+                requireInteraction: false,
+                vibrate: [200, 100, 200]
+            });
+        });
+    } else {
+        new Notification(title, {
+            body: body,
+            icon: '/icon-192.png'
+        });
+    }
 }
 
 // Планирование уведомления
@@ -1261,6 +1511,9 @@ function scheduleNotification(time, title, body) {
     
     setTimeout(() => {
         if (Notification.permission === 'granted') {
+            // Воспроизводим звук, если включено
+            playNotificationSound();
+            
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.ready.then((registration) => {
                     registration.showNotification(title, {
@@ -1280,5 +1533,408 @@ function scheduleNotification(time, title, body) {
             }
         }
     }, delay);
+}
+
+// ==================== ИСЛАМСКИЕ СОБЫТИЯ ====================
+
+// Инициализация страницы событий
+function initEvents() {
+    // Обновляем при переключении на страницу
+    const eventsPage = document.getElementById('events-page');
+    if (eventsPage) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (eventsPage.classList.contains('active')) {
+                        updateEventsPage();
+                    }
+                }
+            });
+        });
+        observer.observe(eventsPage, { attributes: true });
+    }
+}
+
+// Обновление страницы событий
+function updateEventsPage() {
+    updateRamadanCountdown();
+    updateCurrentEvents();
+    updateUpcomingEvents();
+    updateFastingCalendar();
+    
+    // Обновляем отсчет каждую секунду для точности
+    if (window.ramadanCountdownInterval) {
+        clearInterval(window.ramadanCountdownInterval);
+    }
+    window.ramadanCountdownInterval = setInterval(() => {
+        const eventsPage = document.getElementById('events-page');
+        if (eventsPage && eventsPage.classList.contains('active')) {
+            updateRamadanCountdown();
+        }
+    }, 1000); // Обновляем каждую секунду
+}
+
+// Расчет даты Рамадана (примерно, нужна более точная формула)
+function getRamadanDates(year) {
+    // Упрощенный расчет - Рамадан обычно начинается в 9-й месяц Хиджры
+    // Более точный расчет требует астрономических вычислений
+    const hijriYear = year - 579; // Примерное преобразование
+    const ramadanStart = new Date(year, 2, 10); // Примерная дата
+    const ramadanEnd = new Date(year, 3, 9); // Примерная дата
+    
+    // Для более точного расчета можно использовать API или библиотеку
+    return {
+        start: ramadanStart,
+        end: ramadanEnd
+    };
+}
+
+// Отсчет до Рамадана
+function updateRamadanCountdown() {
+    const countdownEl = document.getElementById('ramadan-countdown');
+    if (!countdownEl) return;
+    
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const nextYear = currentYear + 1;
+    
+    // Получаем даты Рамадана
+    const ramadanThisYear = getRamadanDates(currentYear);
+    const ramadanNextYear = getRamadanDates(nextYear);
+    
+    let ramadanStart = ramadanThisYear.start;
+    if (now > ramadanThisYear.start) {
+        ramadanStart = ramadanNextYear.start;
+    }
+    
+    const diff = ramadanStart - now;
+    if (diff <= 0) {
+        countdownEl.innerHTML = `<div class="event-status">${tr('Ramadan has started')}</div>`;
+        return;
+    }
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    countdownEl.innerHTML = `
+        <div class="countdown-days">${days} <span>${tr('days')}</span></div>
+        <div class="countdown-time">${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</div>
+    `;
+}
+
+// Текущие события
+function updateCurrentEvents() {
+    const listEl = document.getElementById('current-events-list');
+    if (!listEl) return;
+    
+    const now = new Date();
+    const events = getCurrentIslamicEvents(now);
+    
+    if (events.length === 0) {
+        listEl.innerHTML = `<div class="no-events">${tr('No current events')}</div>`;
+        return;
+    }
+    
+    listEl.innerHTML = events.map(event => `
+        <div class="event-item current">
+            <div class="event-icon">${event.icon}</div>
+            <div class="event-content">
+                <div class="event-name">${event.name}</div>
+                <div class="event-date">${event.date}</div>
+                ${event.description ? `<div class="event-description">${event.description}</div>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Ближайшие события
+function updateUpcomingEvents() {
+    const listEl = document.getElementById('upcoming-events-list');
+    if (!listEl) return;
+    
+    const now = new Date();
+    const events = getUpcomingIslamicEvents(now);
+    
+    if (events.length === 0) {
+        listEl.innerHTML = `<div class="no-events">${tr('No upcoming events')}</div>`;
+        return;
+    }
+    
+    listEl.innerHTML = events.map(event => `
+        <div class="event-item">
+            <div class="event-icon">${event.icon}</div>
+            <div class="event-content">
+                <div class="event-name">${event.name}</div>
+                <div class="event-date">${event.date}</div>
+                <div class="event-days-left">${tr('Days left')} ${event.daysLeft} ${tr('days')}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Получение текущих исламских событий
+function getCurrentIslamicEvents(date) {
+    const events = [];
+    // Здесь можно добавить логику проверки текущих событий
+    return events;
+}
+
+// Получение предстоящих исламских событий
+function getUpcomingIslamicEvents(date) {
+    const events = [];
+    const currentYear = date.getFullYear();
+    const nextYear = currentYear + 1;
+    
+    // Получаем даты Рамадана для текущего и следующего года
+    const ramadanThisYear = getRamadanDates(currentYear);
+    const ramadanNextYear = getRamadanDates(nextYear);
+    
+    // Определяем ближайший Рамадан
+    let nextRamadan = ramadanThisYear.start;
+    if (date >= ramadanThisYear.start) {
+        nextRamadan = ramadanNextYear.start;
+    }
+    
+    // Добавляем Рамадан
+    const ramadanDaysLeft = Math.ceil((nextRamadan - date) / (1000 * 60 * 60 * 24));
+    events.push({
+        name: tr('Ramadan Countdown').replace('Отсчет до ', '').replace('Ramadan Countdown', 'Ramadan'),
+        date: nextRamadan.toLocaleDateString('ru-RU'),
+        icon: '🌙',
+        daysLeft: ramadanDaysLeft
+    });
+    
+    // Добавляем Ид аль-Фитр (конец Рамадана)
+    let eidAlFitr = ramadanThisYear.end;
+    if (date >= ramadanThisYear.end) {
+        eidAlFitr = ramadanNextYear.end;
+    }
+    const eidAlFitrDaysLeft = Math.ceil((eidAlFitr - date) / (1000 * 60 * 60 * 24));
+    if (eidAlFitrDaysLeft > 0) {
+        events.push({
+            name: 'Ид аль-Фитр',
+            date: eidAlFitr.toLocaleDateString('ru-RU'),
+            icon: '🎉',
+            daysLeft: eidAlFitrDaysLeft
+        });
+    }
+    
+    // Добавляем Ид аль-Адха (примерно через 70 дней после Ид аль-Фитр)
+    let eidAlAdha = new Date(eidAlFitr);
+    eidAlAdha.setDate(eidAlAdha.getDate() + 70);
+    const eidAlAdhaDaysLeft = Math.ceil((eidAlAdha - date) / (1000 * 60 * 60 * 24));
+    if (eidAlAdhaDaysLeft > 0) {
+        events.push({
+            name: 'Ид аль-Адха',
+            date: eidAlAdha.toLocaleDateString('ru-RU'),
+            icon: '🕌',
+            daysLeft: eidAlAdhaDaysLeft
+        });
+    }
+    
+    // Добавляем Лайлат аль-Кадр (примерно 27-я ночь Рамадана)
+    let laylatAlQadr = new Date(nextRamadan);
+    laylatAlQadr.setDate(laylatAlQadr.getDate() + 27);
+    const laylatAlQadrDaysLeft = Math.ceil((laylatAlQadr - date) / (1000 * 60 * 60 * 24));
+    if (laylatAlQadrDaysLeft > 0 && date < nextRamadan) {
+        events.push({
+            name: 'Лайлат аль-Кадр',
+            date: laylatAlQadr.toLocaleDateString('ru-RU'),
+            icon: '⭐',
+            daysLeft: laylatAlQadrDaysLeft
+        });
+    }
+    
+    return events.sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+// Календарь поста
+function updateFastingCalendar() {
+    const infoEl = document.getElementById('fasting-info');
+    const calendarEl = document.getElementById('fasting-calendar');
+    
+    if (!infoEl || !calendarEl) return;
+    
+    const now = new Date();
+    const ramadan = getRamadanDates(now.getFullYear());
+    
+    // Информация о посте
+    if (now >= ramadan.start && now <= ramadan.end) {
+        const dayOfRamadan = Math.ceil((now - ramadan.start) / (1000 * 60 * 60 * 24)) + 1;
+        infoEl.innerHTML = `
+            <div class="fasting-status active">
+                <h3>${tr('Ramadan - Day')} ${dayOfRamadan}</h3>
+                <p>${tr('Fasting today')}</p>
+            </div>
+        `;
+    } else {
+        infoEl.innerHTML = `
+            <div class="fasting-status">
+                <h3>${tr('Fasting not required')}</h3>
+                <p>${tr('Ramadan starts on')} ${ramadan.start.toLocaleDateString('ru-RU')}</p>
+            </div>
+        `;
+    }
+    
+    // Время ифтара и сухура
+    if (prayerCalc.prayerTimes) {
+        const suhur = prayerCalc.prayerTimes.fajr || '--:--';
+        const iftar = prayerCalc.prayerTimes.maghrib || '--:--';
+        
+        calendarEl.innerHTML = `
+            <div class="fasting-times">
+                <div class="fasting-time-item">
+                    <div class="fasting-time-label">${tr('Suhur (before dawn)')}</div>
+                    <div class="fasting-time-value">${suhur}</div>
+                </div>
+                <div class="fasting-time-item">
+                    <div class="fasting-time-label">${tr('Iftar (after sunset)')}</div>
+                    <div class="fasting-time-value">${iftar}</div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// ==================== СТАТЬИ ====================
+
+// Данные статей
+const articlesData = [
+    {
+        id: 1,
+        title: 'Как правильно совершать намаз',
+        icon: '🤲',
+        content: `
+            <h2>Как правильно совершать намаз</h2>
+            <p>Намаз (салят) - это один из пяти столпов ислама. Правильное совершение намаза включает в себя:</p>
+            <ol>
+                <li><strong>Ният (намерение)</strong> - внутреннее намерение совершить молитву</li>
+                <li><strong>Такбир</strong> - произнесение "Аллаху Акбар" с поднятием рук</li>
+                <li><strong>Кыям</strong> - стояние и чтение суры Аль-Фатиха</li>
+                <li><strong>Руку</strong> - поясной поклон</li>
+                <li><strong>Суджуд</strong> - земной поклон (два раза)</li>
+                <li><strong>Ташаххуд</strong> - сидение и чтение молитвы</li>
+                <li><strong>Салям</strong> - приветствие вправо и влево</li>
+            </ol>
+            <p>Важно совершать намаз в чистоте, обратившись лицом к Кибле (Мекке).</p>
+        `
+    },
+    {
+        id: 2,
+        title: 'Время молитв и его важность',
+        icon: '⏰',
+        content: `
+            <h2>Время молитв и его важность</h2>
+            <p>В исламе существует пять обязательных молитв в течение дня:</p>
+            <ul>
+                <li><strong>Фаджр (Рассвет)</strong> - от рассвета до восхода солнца</li>
+                <li><strong>Зухр (Полдень)</strong> - после того, как солнце прошло зенит</li>
+                <li><strong>Аср (Послеполуденная)</strong> - во второй половине дня</li>
+                <li><strong>Магриб (Закат)</strong> - сразу после захода солнца</li>
+                <li><strong>Иша (Ночь)</strong> - после наступления темноты</li>
+            </ul>
+            <p>Соблюдение времени молитв является обязательным для каждого мусульманина. Время молитв зависит от положения солнца и географического местоположения.</p>
+        `
+    },
+    {
+        id: 3,
+        title: 'Зикры и их значение',
+        icon: '📿',
+        content: `
+            <h2>Зикры и их значение</h2>
+            <p>Зикр (поминание Аллаха) - это важная практика в исламе, которая помогает мусульманину помнить о Всевышнем в течение дня.</p>
+            <h3>Основные зикры:</h3>
+            <ul>
+                <li><strong>Субханаллах</strong> - "Слава Аллаху" (произносится 33 раза)</li>
+                <li><strong>Альхамдулиллях</strong> - "Хвала Аллаху" (произносится 33 раза)</li>
+                <li><strong>Аллаху Акбар</strong> - "Аллах велик" (произносится 34 раза)</li>
+                <li><strong>Ля иляха илляллах</strong> - "Нет божества, кроме Аллаха"</li>
+            </ul>
+            <p>Регулярное произнесение зикров очищает сердце, укрепляет веру и приближает к Аллаху.</p>
+        `
+    }
+];
+
+// Инициализация страницы статей
+function initArticles() {
+    // Обновляем при переключении на страницу
+    const articlesPage = document.getElementById('articles-page');
+    if (articlesPage) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (articlesPage.classList.contains('active')) {
+                        renderArticles();
+                    }
+                }
+            });
+        });
+        observer.observe(articlesPage, { attributes: true });
+    }
+}
+
+// Отображение списка статей
+function renderArticles() {
+    const listEl = document.getElementById('articles-list');
+    if (!listEl) return;
+    
+    listEl.innerHTML = articlesData.map(article => `
+        <div class="article-item" data-article-id="${article.id}">
+            <div class="article-icon">${article.icon}</div>
+            <div class="article-title">${article.title}</div>
+            <div class="article-arrow">→</div>
+        </div>
+    `).join('');
+    
+    // Обработчики кликов
+    listEl.querySelectorAll('.article-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const articleId = parseInt(item.getAttribute('data-article-id'));
+            showArticle(articleId);
+        });
+    });
+}
+
+// Показать статью
+function showArticle(articleId) {
+    const article = articlesData.find(a => a.id === articleId);
+    if (!article) return;
+    
+    // Создаем модальное окно для статьи
+    let dialog = document.getElementById('article-dialog');
+    if (!dialog) {
+        dialog = document.createElement('div');
+        dialog.id = 'article-dialog';
+        dialog.className = 'modal';
+        dialog.innerHTML = `
+            <div class="modal-content article-content">
+                <button class="btn btn-secondary" id="close-article-dialog" style="position: absolute; top: 16px; right: 16px;">✕</button>
+                <div id="article-content-body"></div>
+            </div>
+        `;
+        document.body.appendChild(dialog);
+        
+        const closeBtn = document.getElementById('close-article-dialog');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                dialog.classList.remove('active');
+            });
+        }
+        
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) {
+                dialog.classList.remove('active');
+            }
+        });
+    }
+    
+    const contentBody = document.getElementById('article-content-body');
+    if (contentBody) {
+        contentBody.innerHTML = article.content;
+    }
+    
+    dialog.classList.add('active');
 }
 
