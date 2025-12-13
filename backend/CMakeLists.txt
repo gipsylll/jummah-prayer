@@ -15,6 +15,10 @@ endif()
 set(BACKEND_SOURCES
     src/server.cpp
     src/PrayerTimesCalculator.cpp
+    src/FileService.cpp
+    src/JsonService.cpp
+    src/AuthService.cpp
+    src/CitySearchService.cpp
 )
 
 # Скачиваем cpp-httplib (header-only библиотека)

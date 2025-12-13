@@ -2,6 +2,10 @@
 #define CPPHTTPLIB_USE_CERTS_FROM_MACOSX_KEYCHAIN
 #include <httplib.h>
 #include "PrayerTimesCalculator.h"
+#include "FileService.h"
+#include "JsonService.h"
+#include "AuthService.h"
+#include "CitySearchService.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -16,94 +20,23 @@
 #include <chrono>
 #include <mutex>
 
-// Чтение статического файла
-std::string readFile(const std::string& path) {
-    std::ifstream file(path, std::ios::binary);
-    if (!file) {
-        return "";
-    }
-    
-    std::ostringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-// Определение MIME типа (C++17 совместимо)
-std::string getMimeType(const std::string& path) {
-    auto endsWith = [](const std::string& str, const std::string& suffix) {
-        return str.size() >= suffix.size() && 
-               str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
-    };
-    
-    if (endsWith(path, ".html")) return "text/html; charset=utf-8";
-    if (endsWith(path, ".css")) return "text/css";
-    if (endsWith(path, ".js")) return "application/javascript";
-    if (endsWith(path, ".json")) return "application/json";
-    if (endsWith(path, ".png")) return "image/png";
-    if (endsWith(path, ".jpg") || endsWith(path, ".jpeg")) return "image/jpeg";
-    if (endsWith(path, ".svg")) return "image/svg+xml";
-    if (endsWith(path, ".ico")) return "image/x-icon";
-    if (endsWith(path, ".webmanifest")) return "application/manifest+json";
-    return "text/plain";
-}
 
 int main(int argc, char* argv[]) {
     httplib::Server server;
     PrayerTimesCalculator calculator;
+    AuthService authService;
     
     // Определяем путь к веб-файлам
-    std::string webRoot;
-    
-    // Если путь указан как аргумент командной строки
-    if (argc > 1) {
-        webRoot = argv[1];
-        if (webRoot.back() != '/') {
-            webRoot += "/";
-        }
-        std::cout << "📁 Используем указанный путь: " << webRoot << std::endl;
-    } else {
-        // Пробуем разные варианты в зависимости от места запуска
-        std::vector<std::string> possiblePaths = {
-            "../frontend/",                    // Если запускаем из backend/build/
-            "../../frontend/",                  // Если запускаем из корня проекта
-            "frontend/"                         // Если запускаем из корня проекта
-        };
-        
-        // Ищем существующий путь
-        for (const auto& path : possiblePaths) {
-            std::ifstream testFile(path + "index.html");
-            if (testFile.good()) {
-                webRoot = path;
-                testFile.close();
-                std::cout << "✅ Найдена папка с веб-файлами: " << webRoot << std::endl;
-                break;
-            }
-            testFile.close();
-        }
-        
-        // Если ничего не нашли, используем относительный путь
-        if (webRoot.empty()) {
-            webRoot = "../frontend/";
-            std::cout << "⚠️  Предупреждение: используем путь по умолчанию: " << webRoot << std::endl;
-            std::cout << "   Убедитесь, что папка frontend/ существует относительно места запуска" << std::endl;
-            std::cout << "   Или укажите путь: ./JummahPrayerBackend /путь/к/frontend/" << std::endl;
-        }
-    }
-    
-    // Проверяем, что index.html существует
-    std::ifstream checkIndex(webRoot + "index.html");
-    if (!checkIndex.good()) {
-        std::cerr << "❌ ОШИБКА: Не найден файл " << webRoot << "index.html" << std::endl;
-        std::cerr << "   Проверьте путь к веб-файлам!" << std::endl;
+    std::string webRoot = FileService::findWebRoot(argc, argv);
+    if (webRoot.empty()) {
         return 1;
     }
-    checkIndex.close();
     
     // CORS headers
     auto setCorsHeaders = [](httplib::Response& res) {
         res.set_header("Access-Control-Allow-Origin", "*");
         res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     };
     
     // OPTIONS для CORS preflight (должен быть первым)
@@ -130,7 +63,7 @@ int main(int argc, char* argv[]) {
         std::string filePath = webRoot + path.substr(1);
         std::cout << "📄 Запрос: " << req.path << " -> файл: " << filePath << std::endl;
         
-        std::string content = readFile(filePath);
+        std::string content = FileService::readFile(filePath);
         
         if (content.empty()) {
             std::cout << "⚠️  Файл не найден: " << filePath << std::endl;
@@ -138,7 +71,7 @@ int main(int argc, char* argv[]) {
             res.set_content("Not Found: " + filePath, "text/plain");
         } else {
             std::cout << "✅ Файл найден, размер: " << content.size() << " байт" << std::endl;
-            res.set_content(content, getMimeType(filePath));
+            res.set_content(content, FileService::getMimeType(filePath));
         }
         
         setCorsHeaders(res);
@@ -147,28 +80,111 @@ int main(int argc, char* argv[]) {
     // Регистрируем обработчик для корня ПЕРВЫМ
     server.Get("/", handleStaticFile);
     
-    // Статические переменные для синхронизации запросов к Nominatim
-    static std::mutex nominatimMutex;
-    static auto lastNominatimRequest = std::chrono::steady_clock::now();
+    // ========== API ENDPOINTS ДЛЯ АУТЕНТИФИКАЦИИ ==========
     
-    // Простое URL-кодирование для UTF-8
-    auto urlEncode = [](const std::string& str) -> std::string {
-        std::ostringstream encoded;
-        encoded.fill('0');
-        encoded << std::hex;
+    // Регистрация
+    server.Post("/api/auth/register", [&authService, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+        setCorsHeaders(res);
+        res.set_header("Content-Type", "application/json");
         
-        for (unsigned char c : str) {
-            if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
-                encoded << static_cast<char>(c);
-            } else if (c == ' ') {
-                encoded << '+';
-            } else {
-                encoded << '%' << std::setw(2) << static_cast<int>(c);
+        try {
+            auto params = JsonService::parseJson(req.body);
+            
+            if (params.find("email") == params.end() || params.find("password") == params.end() || params.find("name") == params.end()) {
+                res.status = 400;
+                res.set_content(JsonService::createResponse(false, "Email, password and name are required"), "application/json");
+                return;
             }
+            
+            std::string result = authService.registerUser(params["email"], params["password"], params["name"]);
+            if (result.find("\"success\":true") != std::string::npos) {
+                res.status = 201;
+            } else {
+                res.status = 400;
+            }
+            res.set_content(result, "application/json");
+        } catch (const std::exception& e) {
+            res.status = 500;
+            res.set_content(JsonService::createResponse(false, "Server error: " + std::string(e.what())), "application/json");
+        }
+    });
+    
+    // Вход
+    server.Post("/api/auth/login", [&authService, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+        setCorsHeaders(res);
+        res.set_header("Content-Type", "application/json");
+        
+        try {
+            auto params = JsonService::parseJson(req.body);
+            
+            if (params.find("email") == params.end() || params.find("password") == params.end()) {
+                res.status = 400;
+                res.set_content(JsonService::createResponse(false, "Email and password are required"), "application/json");
+                return;
+            }
+            
+            std::string result = authService.loginUser(params["email"], params["password"]);
+            if (result.find("\"success\":true") != std::string::npos) {
+                res.status = 200;
+            } else {
+                res.status = 401;
+            }
+            res.set_content(result, "application/json");
+        } catch (const std::exception& e) {
+            res.status = 500;
+            res.set_content(JsonService::createResponse(false, "Server error: " + std::string(e.what())), "application/json");
+        }
+    });
+    
+    // Получение информации о текущем пользователе
+    server.Get("/api/auth/me", [&authService, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+        setCorsHeaders(res);
+        res.set_header("Content-Type", "application/json");
+        
+        std::string authHeader = req.has_header("Authorization") ? req.get_header_value("Authorization") : "";
+        std::string token = AuthService::getTokenFromHeader(authHeader);
+        
+        if (token.empty()) {
+            res.status = 401;
+            res.set_content(JsonService::createResponse(false, "Token required"), "application/json");
+            return;
         }
         
-        return encoded.str();
-    };
+        std::string userId = authService.validateToken(token);
+        if (userId.empty()) {
+            res.status = 401;
+            res.set_content(JsonService::createResponse(false, "Invalid or expired token"), "application/json");
+            return;
+        }
+        
+        std::string result = authService.getUserInfo(userId);
+        res.status = 200;
+        res.set_content(result, "application/json");
+    });
+    
+    // Выход
+    server.Post("/api/auth/logout", [&authService, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+        setCorsHeaders(res);
+        res.set_header("Content-Type", "application/json");
+        
+        std::string authHeader = req.has_header("Authorization") ? req.get_header_value("Authorization") : "";
+        std::string token = AuthService::getTokenFromHeader(authHeader);
+        
+        if (token.empty()) {
+            res.status = 401;
+            res.set_content(JsonService::createResponse(false, "Token required"), "application/json");
+            return;
+        }
+        
+        bool success = authService.logoutUser(token);
+        if (success) {
+            res.status = 200;
+            res.set_content(JsonService::createResponse(true, "Logged out successfully"), "application/json");
+        } else {
+            res.status = 400;
+            res.set_content(JsonService::createResponse(false, "Invalid token"), "application/json");
+        }
+    });
     
     // Функция для получения кода метода для Aladhan API
     auto getMethodCode = [](int method) -> std::string {
@@ -547,93 +563,8 @@ int main(int argc, char* argv[]) {
         res.set_content(json.str(), "application/json");
     });
     
-    // Функция для HTTP запроса к внешнему API через httplib SSL клиент
-    auto httpGetNominatim = [&urlEncode](const std::string& endpoint, const std::map<std::string, std::string>& params) -> std::string {
-        std::cout << "🚀 Начало запроса к Nominatim, endpoint: " << endpoint << std::endl;
-        
-        // Добавляем задержку между запросами (Nominatim требует минимум 1 секунду между запросами)
-        {
-            std::lock_guard<std::mutex> lock(nominatimMutex);
-            auto now = std::chrono::steady_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastNominatimRequest);
-            
-            if (elapsed.count() < 1000) {
-                int delay = 1000 - elapsed.count();
-                std::cout << "⏳ Задержка " << delay << " мс перед запросом (политика Nominatim)" << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-            }
-            
-            lastNominatimRequest = std::chrono::steady_clock::now();
-        }
-        
-        try {
-            // Используем SSLClient для HTTPS
-            httplib::SSLClient cli("nominatim.openstreetmap.org", 443);
-            std::cout << "✅ SSL клиент создан для nominatim.openstreetmap.org:443" << std::endl;
-            
-            cli.set_follow_location(true);
-            cli.set_connection_timeout(10);
-            cli.set_read_timeout(10);
-            
-            // Формируем URL с параметрами
-            std::ostringstream url;
-            url << endpoint << "?";
-            
-            bool first = true;
-            for (const auto& [key, value] : params) {
-                if (!first) url << "&";
-                first = false;
-                url << urlEncode(key) << "=" << urlEncode(value);
-            }
-            
-            // Nominatim требует правильный User-Agent с контактной информацией
-            // Без правильного User-Agent запросы блокируются (403)
-            // Формат: AppName/Version (Website; email)
-            httplib::Headers headers = {
-                {"User-Agent", "JummahPrayer/1.0 (https://github.com/jummah-prayer; contact@jummahprayer.app)"},
-                {"Accept", "application/json"},
-                {"Accept-Language", "ru,en"}
-            };
-            
-            std::string fullUrl = url.str();
-            std::cout << "🌐 Полный URL запроса: https://nominatim.openstreetmap.org" << fullUrl << std::endl;
-            std::cout << "📤 Отправка GET запроса..." << std::endl;
-            
-            auto response = cli.Get(fullUrl.c_str(), headers);
-            
-            if (response) {
-                std::cout << "📥 Статус ответа: " << response->status << std::endl;
-                
-                if (response->status == 200) {
-                    std::cout << "✅ Получен ответ от Nominatim, размер: " << response->body.size() << " байт" << std::endl;
-                    if (response->body.size() > 0) {
-                        std::cout << "   Первые 100 символов: " << response->body.substr(0, 100) << std::endl;
-                    }
-                    return response->body;
-                } else if (response->status == 403) {
-                    std::cout << "❌ ОШИБКА 403: Nominatim заблокировал запрос" << std::endl;
-                    std::cout << "   Причина: Неправильный User-Agent или превышен лимит запросов" << std::endl;
-                    std::cout << "   Тело ответа: " << response->body.substr(0, 300) << std::endl;
-                    std::cout << "   РЕШЕНИЕ: Используйте правильный User-Agent с контактной информацией" << std::endl;
-                } else {
-                    std::cout << "⚠️  Ошибка HTTP: " << response->status << std::endl;
-                    std::cout << "   Тело ответа: " << response->body.substr(0, 200) << std::endl;
-                }
-            } else {
-                std::cout << "❌ Ошибка подключения к Nominatim (response == nullptr)" << std::endl;
-                std::cout << "   Возможные причины: таймаут, SSL ошибка, сеть недоступна" << std::endl;
-            }
-        } catch (const std::exception& e) {
-            std::cout << "❌ Исключение при запросе к Nominatim: " << e.what() << std::endl;
-        } catch (...) {
-            std::cout << "❌ Неизвестное исключение при запросе к Nominatim" << std::endl;
-        }
-        
-        return "";
-    };
-    
     // API: Поиск городов через Nominatim (OpenStreetMap)
-    server.Get("/api/cities/search", [&httpGetNominatim, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+    server.Get("/api/cities/search", [&setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
         std::cout << "🔍 API запрос: /api/cities/search" << std::endl;
         setCorsHeaders(res);
         
@@ -681,7 +612,7 @@ int main(int argc, char* argv[]) {
         std::cout << "🌐 Отправка запроса к Nominatim..." << std::endl;
         
         // Делаем запрос к Nominatim
-        std::string responseBody = httpGetNominatim("/search", params);
+        std::string responseBody = CitySearchService::searchCities(query, limit);
         
         if (responseBody.empty()) {
             std::cout << "❌ Пустой ответ от Nominatim" << std::endl;
@@ -715,7 +646,7 @@ int main(int argc, char* argv[]) {
     });
     
     // API: Получить город по координатам через Nominatim (обратное геокодирование)
-    server.Get("/api/cities/nearest", [&httpGetNominatim, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+    server.Get("/api/cities/nearest", [&setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
         setCorsHeaders(res);
         
         if (!req.has_param("lat") || !req.has_param("lon")) {
@@ -736,8 +667,8 @@ int main(int argc, char* argv[]) {
             params["addressdetails"] = "1";
             params["accept-language"] = "ru,en";
             
-            // Делаем запрос к Nominatim
-            std::string responseBody = httpGetNominatim("/reverse", params);
+            // Делаем запрос к Nominatim через сервис
+            std::string responseBody = CitySearchService::findNearestCity(lat, lon);
             
             if (responseBody.empty()) {
                 res.status = 500;
@@ -800,7 +731,7 @@ int main(int argc, char* argv[]) {
         std::string filePath = webRoot + path.substr(1);
         std::cout << "📄 Запрос: " << req.path << " -> файл: " << filePath << std::endl;
         
-        std::string content = readFile(filePath);
+        std::string content = FileService::readFile(filePath);
         
         if (content.empty()) {
             std::cout << "⚠️  Файл не найден: " << filePath << std::endl;
@@ -808,7 +739,7 @@ int main(int argc, char* argv[]) {
             res.set_content("Not Found: " + filePath, "text/plain");
         } else {
             std::cout << "✅ Файл найден, размер: " << content.size() << " байт" << std::endl;
-            res.set_content(content, getMimeType(filePath));
+            res.set_content(content, FileService::getMimeType(filePath));
         }
         
         setCorsHeaders(res);
