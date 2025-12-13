@@ -1,0 +1,897 @@
+:root {
+    /* Светлая тема (по умолчанию) */
+    --primary-color: #2E7D32;
+    --primary-light: #66BB6A;
+    --primary-dark: #1B5E20;
+    --accent-color: #FF6F00;
+    --accent-light: #FFA726;
+    --backgroundColor: #F5F5F5;
+    --surfaceColor: #FFFFFF;
+    --cardColor: #FFFFFF;
+    --textColor: #212121;
+    --secondaryTextColor: #757575;
+    --disabledTextColor: #BDBDBD;
+    --borderColor: #E0E0E0;
+    --dividerColor: #EEEEEE;
+    --successColor: #4CAF50;
+    --warningColor: #FF9800;
+    --errorColor: #F44336;
+    --infoColor: #2196F3;
+    --shadowColor: rgba(0, 0, 0, 0.08);
+    --shadowColorLight: rgba(0, 0, 0, 0.04);
+    --radiusSmall: 8px;
+    --radiusMedium: 12px;
+    --radiusLarge: 16px;
+    --radiusXLarge: 24px;
+    --paddingSmall: 8px;
+    --paddingMedium: 16px;
+    --paddingLarge: 24px;
+}
+
+[data-theme="dark"] {
+    --primary-color: #4CAF50;
+    --primary-light: #81C784;
+    --primary-dark: #2E7D32;
+    --accent-color: #FF9800;
+    --accent-light: #FFB74D;
+    --backgroundColor: #121212;
+    --surfaceColor: #1E1E1E;
+    --cardColor: #2C2C2C;
+    --textColor: #FFFFFF;
+    --secondaryTextColor: #B0B0B0;
+    --disabledTextColor: #666666;
+    --borderColor: #424242;
+    --dividerColor: #303030;
+    --successColor: #66BB6A;
+    --warningColor: #FFB74D;
+    --errorColor: #EF5350;
+    --infoColor: #64B5F6;
+    --shadowColor: rgba(0, 0, 0, 0.4);
+    --shadowColorLight: rgba(0, 0, 0, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--backgroundColor);
+    color: var(--textColor);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.page {
+    display: none;
+    min-height: calc(100vh - 80px);
+    padding-bottom: 20px;
+}
+
+.page.active {
+    display: block;
+}
+
+/* Заголовок с градиентом */
+.header-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    padding: 40px 20px 30px;
+    color: white;
+    text-align: center;
+}
+
+.countdown-container {
+    margin-bottom: 20px;
+}
+
+.countdown-label {
+    font-size: 14px;
+    opacity: 0.95;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.countdown-time {
+    font-size: 40px;
+    font-weight: bold;
+    font-family: 'SF Mono', Menlo, 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+.location-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 0 8px;
+}
+
+.location-icon {
+    font-size: 20px;
+    display: inline-block;
+}
+
+#current-city {
+    flex: 1;
+    text-align: left;
+    font-weight: 600;
+}
+
+.calendar-btn {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+    min-width: 60px;
+}
+
+.calendar-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Карточки текущего и следующего намаза */
+.current-next-cards {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background-color: var(--surfaceColor);
+}
+
+.prayer-card {
+    flex: 1;
+    padding: 16px;
+    border-radius: var(--radiusLarge);
+    text-align: center;
+    color: white;
+}
+
+.current-prayer {
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+}
+
+.next-prayer {
+    background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);
+}
+
+.prayer-card-label {
+    font-size: 12px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+
+.prayer-card-name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Список времен намазов */
+.prayer-times-list {
+    padding: 16px;
+}
+
+.prayer-time-item {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--borderColor);
+    box-shadow: 0 2px 4px var(--shadowColorLight);
+    transition: all 0.3s;
+}
+
+.prayer-time-item.current {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 4px 8px var(--shadowColor);
+}
+
+.prayer-time-item.next {
+    border: 2px solid var(--accent-color);
+}
+
+.prayer-time-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.prayer-time-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.prayer-time-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.prayer-time-progress {
+    height: 4px;
+    background-color: var(--dividerColor);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.prayer-time-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    transition: width 1s linear;
+}
+
+/* Виджеты информации */
+.info-widgets {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+}
+
+.info-widget {
+    flex: 1;
+    background-color: var(--cardColor);
+    border: 1px solid var(--borderColor);
+    border-radius: var(--radiusLarge);
+    padding: 12px;
+    text-align: center;
+    box-shadow: 0 2px 4px var(--shadowColorLight);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.info-widget:hover {
+    transform: scale(1.05);
+}
+
+.widget-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.widget-label {
+    font-size: 11px;
+    color: var(--secondaryTextColor);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.widget-value {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--textColor);
+}
+
+/* Управление датой */
+.date-controls {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    padding: 16px;
+    margin: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.date-display {
+    flex: 1;
+    font-size: 14px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radiusMedium);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--secondaryTextColor);
+    color: white;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-refresh {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 18px;
+    border-radius: var(--radiusMedium);
+}
+
+/* Нижняя навигация */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background-color: var(--surfaceColor);
+    border-top: 1px solid var(--dividerColor);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+}
+
+.nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    transition: all 0.2s;
+    color: var(--secondaryTextColor);
+}
+
+.nav-btn.active {
+    color: var(--primary-color);
+}
+
+.nav-icon {
+    font-size: 26px;
+    transition: transform 0.2s;
+}
+
+.nav-btn.active .nav-icon {
+    font-size: 30px;
+    transform: scale(1.1);
+}
+
+.nav-label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Страницы */
+.page-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    padding: 30px 20px;
+    text-align: center;
+    color: white;
+}
+
+.page-header h1 {
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.settings-container, .dhikr-container {
+    padding: 20px;
+}
+
+.settings-section {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--borderColor);
+}
+
+.settings-section h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-section h2::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+}
+
+.current-location {
+    margin-bottom: 16px;
+}
+
+.location-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background-color: var(--backgroundColor);
+    border-radius: var(--radiusMedium);
+    margin-bottom: 12px;
+}
+
+.location-coords {
+    font-size: 11px;
+    color: var(--secondaryTextColor);
+}
+
+.location-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.location-buttons .btn {
+    flex: 1;
+    height: 50px;
+}
+
+.select-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--borderColor);
+    border-radius: var(--radiusMedium);
+    background-color: var(--backgroundColor);
+    color: var(--textColor);
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: var(--radiusMedium);
+    transition: background-color 0.2s;
+}
+
+.radio-label:hover {
+    background-color: var(--backgroundColor);
+}
+
+.radio-label input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: var(--backgroundColor);
+    border-radius: var(--radiusMedium);
+    margin-bottom: 12px;
+}
+
+/* Switch (переключатель) */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--borderColor);
+    transition: 0.3s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* Зикр */
+.dhikr-list {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.dhikr-item {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    border: 1px solid var(--borderColor);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dhikr-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadowColor);
+}
+
+.dhikr-item-content {
+    padding: 20px;
+}
+
+.dhikr-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.dhikr-item-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.dhikr-item-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--secondaryTextColor);
+    background-color: var(--backgroundColor);
+    padding: 4px 12px;
+    border-radius: var(--radiusSmall);
+}
+
+.dhikr-item-arabic {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: right;
+    direction: rtl;
+    color: var(--textColor);
+    margin: 12px 0;
+    line-height: 1.6;
+}
+
+.dhikr-item-transliteration {
+    font-size: 16px;
+    color: var(--primary-color);
+    font-style: italic;
+    margin-bottom: 8px;
+}
+
+.dhikr-item-translation {
+    font-size: 14px;
+    color: var(--secondaryTextColor);
+    margin-bottom: 12px;
+}
+
+.dhikr-progress {
+    width: 100%;
+    height: 6px;
+    background-color: var(--backgroundColor);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.dhikr-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.dhikr-counter {
+    background-color: var(--cardColor);
+    border-radius: var(--radiusLarge);
+    padding: 40px;
+    text-align: center;
+    border: 1px solid var(--borderColor);
+}
+
+.dhikr-counter-modal {
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.dhikr-counter-modal h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.dhikr-arabic {
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    direction: rtl;
+    color: var(--textColor);
+    margin: 20px 0;
+    line-height: 1.8;
+}
+
+.dhikr-transliteration {
+    font-size: 18px;
+    color: var(--primary-color);
+    font-style: italic;
+    margin-bottom: 12px;
+}
+
+.dhikr-translation {
+    font-size: 16px;
+    color: var(--secondaryTextColor);
+    margin-bottom: 30px;
+}
+
+.counter-display {
+    font-size: 68px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 20px 0;
+}
+
+.counter-goal {
+    font-size: 16px;
+    color: var(--secondaryTextColor);
+    margin-bottom: 20px;
+}
+
+.btn-large {
+    width: 100%;
+    height: 70px;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.dhikr-instruction {
+    margin-top: 20px;
+    padding: 12px;
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-radius: var(--radiusMedium);
+    font-size: 12px;
+    color: #1565C0;
+}
+
+/* Модальные окна */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--surfaceColor);
+    border-radius: var(--radiusLarge);
+    padding: 24px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px var(--shadowColor);
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+/* Календарь */
+.calendar-container {
+    min-width: 300px;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.calendar-nav {
+    background: none;
+    border: 1px solid var(--borderColor);
+    border-radius: var(--radiusSmall);
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--textColor);
+}
+
+.calendar-month {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 16px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--secondaryTextColor);
+    padding: 8px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radiusSmall);
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: var(--backgroundColor);
+}
+
+.calendar-day:hover {
+    background-color: var(--borderColor);
+}
+
+.calendar-day.today {
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.selected {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.other-month {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.calendar-quick {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.calendar-quick .btn {
+    flex: 1;
+}
+
+/* Поиск города */
+.input-text {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--borderColor);
+    border-radius: var(--radiusMedium);
+    background-color: var(--backgroundColor);
+    color: var(--textColor);
+    font-size: 15px;
+    margin-bottom: 16px;
+}
+
+.city-results {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+
+.city-result-item {
+    padding: 12px;
+    border-bottom: 1px solid var(--borderColor);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.city-result-item:hover {
+    background-color: var(--backgroundColor);
+}
+
+.about-text {
+    color: var(--secondaryTextColor);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .countdown-time {
+        font-size: 32px;
+    }
+    
+    .prayer-time-value {
+        font-size: 20px;
+    }
+    
+    .info-widgets {
+        flex-direction: column;
+    }
+    
+    .location-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Анимации */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.countdown-time {
+    animation: pulse 2s infinite;
+}
+

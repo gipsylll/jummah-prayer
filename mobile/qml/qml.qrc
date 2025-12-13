@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Main.qml</file>
+        <file>MainPage.qml</file>
+        <file>SettingsPage.qml</file>
+        <file>QiblaPage.qml</file>
+        <file>DhikrPage.qml</file>
+        <file>Theme.qml</file>
+        <file>Translator.qml</file>
+        <file>qmldir</file>
+        <file>components/PrayerTimeCard.qml</file>
+        <file>components/CustomTabButton.qml</file>
+        <file>components/SettingsSection.qml</file>
+        <file>components/CitySearchDialog.qml</file>
+        <file>components/qmldir</file>
+    </qresource>
+</RCC>
+

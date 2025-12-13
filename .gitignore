@@ -1,0 +1,63 @@
+# Build directories
+build/
+# build-*/
+cmake-build-*/
+
+# Qt generated files
+*.pro.user
+*.autosave
+*.qmlc
+*.jsc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.qm
+
+# C++ compiled files
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.exe
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Qt Creator
+*.pro.user*
+*.qbs.user*
+
+# Android
+*.apk
+*.ap_
+*.dex
+android-build/
+.gradle/
+local.properties
+
+# Testing
+Testing/
+CTestTestfile.cmake
+_deps/
+
+# User settings
+*.ini
+*.conf
+
+# Logs
+*.log
+app.log
+
+# Temporary files
+*.tmp
+*.temp
+*.cache

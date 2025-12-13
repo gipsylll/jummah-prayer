@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Основные мета-теги -->
+    <title>Jummah Prayer - Точное время намаза для любой точки мира</title>
+    <meta name="description" content="Точное время намаза для любой точки мира. Расчет времени молитв, зикры, календарь Хиджры. Бесплатное приложение для мусульман.">
+    <meta name="keywords" content="намаз, молитва, время молитв, ислам, зикр, хиджра, салят, азан, кибла">
+    <meta name="author" content="Jummah Prayer">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph для соцсетей -->
+    <meta property="og:title" content="Jummah Prayer - Время Намаза">
+    <meta property="og:description" content="Точное время намаза для любой точки мира. Расчет времени молитв, зикры, календарь Хиджры.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/icon-512.png">
+    <meta property="og:url" content="https://jummah-prayer.com">
+    <meta property="og:locale" content="ru_RU">
+    <meta property="og:site_name" content="Jummah Prayer">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Jummah Prayer - Время Намаза">
+    <meta name="twitter:description" content="Точное время намаза для любой точки мира">
+    <meta name="twitter:image" content="/icon-512.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#2E7D32">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2E7D32">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Jummah Prayer">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Главная страница -->
+    <div id="main-page" class="page active">
+        <!-- Заголовок с таймером -->
+        <div class="header-gradient">
+            <div class="countdown-container">
+                <div class="countdown-label" data-i18n="Time Until">Осталось до</div>
+                <div class="countdown-time" id="countdown-time">00:00:00</div>
+            </div>
+            <div class="location-info">
+                <span class="location-icon">📍</span>
+                <span id="current-city">Загрузка...</span>
+                <button class="calendar-btn" id="calendar-btn" data-i18n="Select Date">
+                    <span data-i18n="Select">Выбрать</span>
+                    <span data-i18n="Date">дату</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Карточки текущего и следующего намаза -->
+        <div class="current-next-cards">
+            <div class="prayer-card current-prayer">
+                <div class="prayer-card-label" data-i18n="Current">Прошедший</div>
+                <div class="prayer-card-name" id="current-prayer-name">---</div>
+            </div>
+            <div class="prayer-card next-prayer">
+                <div class="prayer-card-label" data-i18n="Next">Следующий</div>
+                <div class="prayer-card-name" id="next-prayer-name">---</div>
+            </div>
+        </div>
+
+        <!-- Список времен намазов -->
+        <div class="prayer-times-list" id="prayer-times-list">
+            <!-- Заполняется через JavaScript -->
+        </div>
+
+        <!-- Виджеты внизу -->
+        <div class="info-widgets">
+            <div class="info-widget" id="qibla-widget">
+                <div class="widget-icon">🧭</div>
+                <div class="widget-label" data-i18n="Qibla Direction">Направление Киблы</div>
+                <div class="widget-value">→</div>
+            </div>
+            <div class="info-widget">
+                <div class="widget-icon">☪️</div>
+                <div class="widget-label" data-i18n="Hijri Date">Дата Хиджры</div>
+                <div class="widget-value" id="hijri-date">---</div>
+            </div>
+            <div class="info-widget" id="notifications-widget">
+                <div class="widget-icon">🔔</div>
+                <div class="widget-label" data-i18n="Notifications">Уведомления</div>
+                <div class="widget-value" id="notifications-status" data-i18n="Disabled">Отключено</div>
+            </div>
+        </div>
+
+        <!-- Дата и кнопки управления -->
+        <div class="date-controls">
+            <div class="date-display">
+                <span data-i18n="Date:">Дата:</span>
+                <span id="current-date">---</span>
+            </div>
+            <button class="btn btn-primary" id="select-date-btn" data-i18n="Select Date">Выбрать дату</button>
+            <button class="btn btn-refresh" id="refresh-btn">🔄</button>
+        </div>
+    </div>
+
+    <!-- Страница Зикра -->
+    <div id="dhikr-page" class="page">
+        <div class="page-header">
+            <h1 data-i18n="Dhikr and Duas">📿 Зикры и Дуа</h1>
+        </div>
+        
+        <!-- Список зикров -->
+        <div class="dhikr-list" id="dhikr-list">
+            <!-- Заполняется через JavaScript -->
+        </div>
+        
+        <!-- Диалог счетчика зикра -->
+        <div id="dhikr-counter-dialog" class="modal">
+            <div class="modal-content dhikr-counter-modal">
+                <h2 id="dhikr-counter-title">Субханаллах</h2>
+                <div class="dhikr-arabic" id="dhikr-arabic">سُبْحَانَ ٱللَّٰهِ</div>
+                <div class="dhikr-transliteration" id="dhikr-transliteration">Subḥānallāh</div>
+                <div class="dhikr-translation" id="dhikr-translation">Слава Аллаху</div>
+                
+                <div class="dhikr-counter">
+                    <div class="counter-display" id="dhikr-count">0</div>
+                    <div class="counter-goal" data-i18n="Goal:">Цель: <span id="dhikr-goal">33</span></div>
+                    <button class="btn btn-large btn-primary" id="dhikr-increment" data-i18n="Press">Нажать</button>
+                    <button class="btn btn-secondary" id="dhikr-reset" data-i18n="Reset">🔄 Сбросить</button>
+                </div>
+                
+                <div class="dhikr-instruction" data-i18n="Counter instruction">
+                    Нажимайте кнопку "Нажать" для подсчёта. Счётчик обнулится при достижении цели.
+                </div>
+                
+                <button class="btn btn-secondary" id="close-dhikr-dialog" data-i18n="Close">✕ Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Страница Настроек -->
+    <div id="settings-page" class="page">
+        <div class="page-header">
+            <h1 data-i18n="Settings">⚙️ Настройки</h1>
+        </div>
+        <div class="settings-container">
+            <!-- Местоположение -->
+            <div class="settings-section">
+                <h2 data-i18n="Location">Местоположение</h2>
+                <div class="current-location">
+                    <div class="location-display">
+                        <span class="location-icon">📍</span>
+                        <div>
+                            <div id="settings-city">Москва</div>
+                            <div class="location-coords" id="settings-coords">55.76°N, 37.62°E</div>
+                        </div>
+                    </div>
+                    <div class="location-buttons">
+                        <button class="btn btn-outline" id="select-city-btn" data-i18n="From List">📍 Из списка</button>
+                        <button class="btn btn-primary" id="auto-detect-btn" data-i18n="Auto-detect">📡 Автоопределение</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Метод расчета -->
+            <div class="settings-section">
+                <h2 data-i18n="Calculation Method">Метод расчета</h2>
+                <select id="calculation-method" class="select-input">
+                    <option value="0">MWL - Muslim World League</option>
+                    <option value="1">ISNA - Islamic Society</option>
+                    <option value="2">Egypt - Egyptian Authority</option>
+                    <option value="3" selected>Makkah - Umm al-Qura</option>
+                    <option value="4">Karachi - Islamic Sciences</option>
+                    <option value="5">Tehran - Geophysics</option>
+                </select>
+            </div>
+
+            <!-- Мазхаб -->
+            <div class="settings-section">
+                <h2 data-i18n="Madhab (Asr)">Мазхаб (Аср)</h2>
+                <label class="radio-label">
+                    <input type="radio" name="madhab" value="0" checked>
+                    <span data-i18n="Shafii, Maliki, Hanbali">Шафии, Малики, Ханбали (стандартный)</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="madhab" value="1">
+                    <span data-i18n="Hanafi">Ханафи (тень в 2 раза больше)</span>
+                </label>
+            </div>
+
+            <!-- Интерфейс -->
+            <div class="settings-section">
+                <h2 data-i18n="Interface">Интерфейс</h2>
+                <div class="setting-item">
+                    <span data-i18n="Dark Theme">🌙 Темная тема</span>
+                    <label class="switch">
+                        <input type="checkbox" id="dark-theme">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span data-i18n="Notifications">🔔 Уведомления</span>
+                    <label class="switch">
+                        <input type="checkbox" id="notifications">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span data-i18n="Interface Language">🌐 Язык интерфейса</span>
+                    <select id="language-select" class="select-input">
+                        <option value="ru" selected>🇷🇺 Русский</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- О приложении -->
+            <div class="settings-section">
+                <h2 data-i18n="About">О приложении</h2>
+                <p>Jummah Prayer v1.0.0</p>
+                <p class="about-text" data-i18n="App description">
+                    Приложение для расчета точного времени намаза в любой точке мира.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нижняя навигация -->
+    <div class="bottom-nav">
+        <button class="nav-btn active" data-page="main-page">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label" data-i18n="Time">Время</span>
+        </button>
+        <button class="nav-btn" data-page="dhikr-page">
+            <span class="nav-icon">📿</span>
+            <span class="nav-label" data-i18n="Dhikr">Зикры</span>
+        </button>
+        <button class="nav-btn" data-page="settings-page">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label" data-i18n="Settings">Настройки</span>
+        </button>
+    </div>
+
+    <!-- Диалог выбора даты -->
+    <div id="date-dialog" class="modal">
+        <div class="modal-content">
+            <h2 data-i18n="Date Selection">Выбор даты</h2>
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="calendar-nav" id="prev-month">◄</button>
+                    <div class="calendar-month" id="calendar-month"></div>
+                    <button class="calendar-nav" id="next-month">►</button>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+                <div class="calendar-quick">
+                    <button class="btn btn-outline" id="yesterday-btn" data-i18n="Yesterday">⏮ Вчера</button>
+                    <button class="btn btn-primary" id="today-btn" data-i18n="Today">📅 Сегодня</button>
+                    <button class="btn btn-outline" id="tomorrow-btn" data-i18n="Tomorrow">Завтра ⏭</button>
+                </div>
+            </div>
+            <button class="btn btn-secondary" id="close-date-dialog" data-i18n="Close">✕ Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Диалог поиска города -->
+    <div id="city-dialog" class="modal">
+        <div class="modal-content">
+            <h2 data-i18n="City Selection">Выбор города</h2>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <input type="text" id="city-search" class="input-text" placeholder="Поиск города..." data-i18n-placeholder="Search city..." style="flex: 1;">
+                <button class="btn btn-primary" id="search-city-btn" data-i18n="Search">🔍 Поиск</button>
+            </div>
+            <div id="city-results" class="city-results"></div>
+            <button class="btn btn-secondary" id="close-city-dialog" data-i18n="Cancel">Отмена</button>
+        </div>
+    </div>
+
+    <script src="translations.js"></script>
+    <script src="prayer-calculator.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+

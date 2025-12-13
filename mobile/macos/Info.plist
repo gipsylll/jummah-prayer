@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Приложению необходим доступ к вашей геолокации для определения точного времени молитв в вашем регионе.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Приложению необходим доступ к вашей геолокации для определения точного времени молитв в вашем регионе.</string>
+    <key>NSUserNotificationsUsageDescription</key>
+    <string>Приложению нужны разрешения на уведомления, чтобы напоминать вам о времени молитв.</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.jummahprayer.app</string>
+    <key>CFBundleName</key>
+    <string>Jummah Prayer</string>
+    <key>CFBundleVersion</key>
+    <string>1.0.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+</dict>
+</plist>
+

@@ -1,0 +1,7 @@
+module components
+
+PrayerTimeCard 1.0 PrayerTimeCard.qml
+CustomTabButton 1.0 CustomTabButton.qml
+SettingsSection 1.0 SettingsSection.qml
+CitySearchDialog 1.0 CitySearchDialog.qml
+
