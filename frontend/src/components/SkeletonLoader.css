@@ -1,0 +1,30 @@
+.skeleton-container {
+    padding: 16px;
+}
+
+.skeleton-line {
+    height: 16px;
+    background: linear-gradient(
+        90deg,
+        var(--borderColor) 0%,
+        var(--dividerColor) 50%,
+        var(--borderColor) 100%
+    );
+    background-size: 200% 100%;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-line:last-child {
+    margin-bottom: 0;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}

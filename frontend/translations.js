@@ -413,6 +413,131 @@ const translations = {
         "ru": "Дополнительно",
         "en": "Additional",
         "ar": "إضافي"
+    },
+    "Account": {
+        "ru": "Аккаунт",
+        "en": "Account",
+        "ar": "حساب"
+    },
+    "Login": {
+        "ru": "Войти",
+        "en": "Login",
+        "ar": "تسجيل الدخول"
+    },
+    "Register": {
+        "ru": "Зарегистрироваться",
+        "en": "Register",
+        "ar": "التسجيل"
+    },
+    "Logout": {
+        "ru": "Выйти",
+        "en": "Logout",
+        "ar": "تسجيل الخروج"
+    },
+    "Profile": {
+        "ru": "Профиль",
+        "en": "Profile",
+        "ar": "الملف الشخصي"
+    },
+    "Email": {
+        "ru": "Email",
+        "en": "Email",
+        "ar": "البريد الإلكتروني"
+    },
+    "Password": {
+        "ru": "Пароль",
+        "en": "Password",
+        "ar": "كلمة المرور"
+    },
+    "Name": {
+        "ru": "Имя",
+        "en": "Name",
+        "ar": "الاسم"
+    },
+    "Confirm Password": {
+        "ru": "Подтвердите пароль",
+        "en": "Confirm Password",
+        "ar": "تأكيد كلمة المرور"
+    },
+    "Don't have an account?": {
+        "ru": "Нет аккаунта?",
+        "en": "Don't have an account?",
+        "ar": "ليس لديك حساب؟"
+    },
+    "Already have an account?": {
+        "ru": "Уже есть аккаунт?",
+        "en": "Already have an account?",
+        "ar": "هل لديك حساب بالفعل؟"
+    },
+    "Password requirements": {
+        "ru": "Минимум 8 символов, включая цифры, заглавные и строчные буквы",
+        "en": "Minimum 8 characters, including numbers, uppercase and lowercase letters",
+        "ar": "الحد الأدنى 8 أحرف، بما في ذلك الأرقام والأحرف الكبيرة والصغيرة"
+    },
+    "Passwords do not match": {
+        "ru": "Пароли не совпадают",
+        "en": "Passwords do not match",
+        "ar": "كلمات المرور غير متطابقة"
+    },
+    "Loading": {
+        "ru": "Загрузка...",
+        "en": "Loading...",
+        "ar": "جاري التحميل..."
+    },
+    "Account Information": {
+        "ru": "Информация об аккаунте",
+        "en": "Account Information",
+        "ar": "معلومات الحساب"
+    },
+    "Registration Date": {
+        "ru": "Дата регистрации",
+        "en": "Registration Date",
+        "ar": "تاريخ التسجيل"
+    },
+    "Last Login": {
+        "ru": "Последний вход",
+        "en": "Last Login",
+        "ar": "آخر تسجيل دخول"
+    },
+    "Active Sessions": {
+        "ru": "Активных сессий",
+        "en": "Active Sessions",
+        "ar": "الجلسات النشطة"
+    },
+    "Change Password": {
+        "ru": "Изменить пароль",
+        "en": "Change Password",
+        "ar": "تغيير كلمة المرور"
+    },
+    "Current Password": {
+        "ru": "Текущий пароль",
+        "en": "Current Password",
+        "ar": "كلمة المرور الحالية"
+    },
+    "New Password": {
+        "ru": "Новый пароль",
+        "en": "New Password",
+        "ar": "كلمة المرور الجديدة"
+    },
+    "Confirm New Password": {
+        "ru": "Подтвердите новый пароль",
+        "en": "Confirm New Password",
+        "ar": "تأكيد كلمة المرور الجديدة"
+    },
+    "Statistics": {
+        "ru": "Статистика",
+        "en": "Statistics",
+        "ar": "الإحصائيات"
+    },
+    "Total Users": {
+        "ru": "Всего пользователей",
+        "en": "Total Users",
+        "ar": "إجمالي المستخدمين"
+    },
+    "Logged out successfully": {
+        "ru": "Выход выполнен успешно",
+        "en": "Logged out successfully",
+        "ar": "تم تسجيل الخروج بنجاح"
     }
 };
 

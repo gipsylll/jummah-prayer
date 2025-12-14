@@ -5,6 +5,11 @@ const pageHistory = [];
 
 // Инициализация улучшений UI
 function initUIEnhancements() {
+    // Сбрасываем все застрявшие состояния загрузки
+    document.querySelectorAll('.btn[data-loading="true"]').forEach(btn => {
+        resetButtonLoading(btn);
+    });
+    
     initPageTransitions();
     initCardAnimations();
     initLoadingStates();
@@ -99,17 +104,35 @@ function hideSkeleton(element, content) {
     element.innerHTML = content || element.dataset.originalContent || '';
 }
 
+// Функция для сброса состояния загрузки кнопки
+function resetButtonLoading(button) {
+    if (!button) return;
+    if (button.dataset.loading === 'true') {
+        button.dataset.loading = 'false';
+        button.disabled = false;
+        const originalText = button.dataset.originalText || button.textContent.replace(/<span class="spinner"><\/span>\s*/, '');
+        button.innerHTML = originalText;
+        delete button.dataset.originalText;
+    }
+}
+
+// Функция для установки состояния загрузки кнопки
+function setButtonLoading(button) {
+    if (!button || button.dataset.loading === 'true') return;
+    const originalText = button.textContent.trim();
+    button.dataset.originalText = originalText;
+    button.dataset.loading = 'true';
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner"></span> ' + originalText;
+}
+
 // Инициализация loading состояний
 function initLoadingStates() {
-    // Добавляем loading состояние для кнопок
-    document.querySelectorAll('.btn').forEach(btn => {
+    // Добавляем loading состояние для кнопок (только для форм, чтобы не конфликтовать с другими обработчиками)
+    document.querySelectorAll('form .btn[type="submit"]').forEach(btn => {
         btn.addEventListener('click', function() {
             if (this.dataset.loading !== 'true') {
-                const originalText = this.textContent;
-                this.dataset.originalText = originalText;
-                this.dataset.loading = 'true';
-                this.disabled = true;
-                this.innerHTML = '<span class="spinner"></span> ' + originalText;
+                setButtonLoading(this);
             }
         });
     });
@@ -300,4 +323,6 @@ window.initUIEnhancements = initUIEnhancements;
 window.updateBreadcrumbs = updateBreadcrumbs;
 window.showSkeleton = showSkeleton;
 window.hideSkeleton = hideSkeleton;
+window.setButtonLoading = setButtonLoading;
+window.resetButtonLoading = resetButtonLoading;
 

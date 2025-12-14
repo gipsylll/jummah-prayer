@@ -51,6 +51,21 @@ function switchPage(pageId) {
             updateEventsPage();
         } else if (pageId === 'articles-page') {
             renderArticles();
+        } else if (pageId === 'profile-page' && window.loadProfilePage) {
+            loadProfilePage();
+        } else if (pageId === 'stats-page' && window.loadStatsPage) {
+            loadStatsPage();
+        } else if (pageId === 'register-page') {
+            // Убеждаемся, что обработчик формы регистрации привязан
+            setTimeout(() => {
+                const form = document.getElementById('register-form');
+                if (form && !form.hasAttribute('data-handler-attached')) {
+                    console.log('Инициализация формы регистрации при переключении страницы');
+                    if (window.initAuthForms) {
+                        window.initAuthForms();
+                    }
+                }
+            }, 100);
         }
         
         // Обновляем breadcrumbs если функция доступна

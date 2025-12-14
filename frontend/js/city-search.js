@@ -424,3 +424,4 @@ function initCitySearch() {
     console.log('✅ Инициализация поиска городов завершена');
 }
 
+

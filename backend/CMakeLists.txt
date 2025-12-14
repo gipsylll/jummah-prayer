@@ -47,7 +47,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 # Поиск OpenSSL для HTTPS поддержки
-#find_package(OpenSSL REQUIRED)
+# На macOS с Homebrew нужно указать путь к OpenSSL
+if(APPLE)
+    # Проверяем стандартные пути Homebrew
+    set(OPENSSL_ROOT_DIR "/opt/homebrew/opt/openssl@3" "/opt/homebrew/opt/openssl" "/usr/local/opt/openssl@3" "/usr/local/opt/openssl")
+endif()
+find_package(OpenSSL REQUIRED)
 
 # Линковка
 if(APPLE)

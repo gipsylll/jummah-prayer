@@ -66,13 +66,9 @@ body {
 }
 
 .page {
-    display: none;
+    display: block;
     min-height: calc(100vh - 80px);
     padding-bottom: 20px;
-}
-
-.page.active {
-    display: block;
 }
 
 /* Заголовок с градиентом */
@@ -1368,14 +1364,21 @@ input:checked + .slider:before {
 
 /* Плавные переходы между страницами */
 .page {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.page.active {
     opacity: 1;
     transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    animation: pageEnter 0.3s ease;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .page-exit {
@@ -1675,6 +1678,23 @@ input:checked + .slider:before {
     transition: all 0.3s ease;
 }
 
+.dhikr-count.animate {
+    animation: countPulse 0.3s ease;
+}
+
+@keyframes countPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+        color: var(--primary-light);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 .dhikr-increment:active ~ .dhikr-count {
     transform: scale(1.15);
     color: var(--primary-light);
@@ -1717,6 +1737,46 @@ input:checked + .slider:before {
         padding: 10px 16px;
         font-size: 12px;
     }
+}
+
+/* ========== ДОСТУПНОСТЬ ========== */
+
+/* Высокий контраст */
+[data-high-contrast="true"] {
+    --textColor: #FFFFFF;
+    --secondaryTextColor: #FFFFFF;
+    --backgroundColor: #000000;
+    --surfaceColor: #1A1A1A;
+    --cardColor: #2A2A2A;
+    --borderColor: #FFFFFF;
+    --primary-color: #00FF00;
+}
+
+[data-high-contrast="true"] .btn {
+    border: 2px solid var(--textColor);
+}
+
+[data-high-contrast="true"] .prayer-time-item {
+    border: 2px solid var(--borderColor);
+}
+
+/* Клавиатурная навигация */
+.keyboard-navigation *:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Screen reader only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
 }
 
 /* ========== СТРАНИЦЫ АВТОРИЗАЦИИ ========== */
