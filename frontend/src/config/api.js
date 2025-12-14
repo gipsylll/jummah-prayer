@@ -9,8 +9,18 @@ const getApiBaseUrl = () => {
     
     // В development используем прокси или localhost
     if (import.meta.env.DEV) {
+        // Проверяем, открыто ли приложение через туннель (tuna.am, ngrok, и т.д.)
+        const isTunnel = window.location.hostname.includes('tuna.am') || 
+                        window.location.hostname.includes('ngrok') ||
+                        window.location.hostname.includes('localtunnel');
+        
+        // Если открыто через туннель, используем текущий origin (прокси Vite должен работать)
+        if (isTunnel) {
+            return window.location.origin; // Прокси Vite перенаправит на бэкенд
+        }
+        
         // Если фронтенд и бэкенд на одном домене (через прокси Vite)
-        if (window.location.port === '3000' || window.location.port === '5173') {
+        if (window.location.port === '3000' || window.location.port === '3001' || window.location.port === '5173') {
             return window.location.origin; // Прокси Vite перенаправит на бэкенд
         }
         // Иначе используем localhost:8080
@@ -46,6 +56,8 @@ if (import.meta.env.DEV) {
     console.log('API Configuration:', {
         API_BASE_URL,
         currentOrigin: window.location.origin,
+        hostname: window.location.hostname,
+        port: window.location.port,
         env: import.meta.env.MODE
     });
 }
