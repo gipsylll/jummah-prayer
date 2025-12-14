@@ -1,5 +1,4 @@
 # Makefile для удобной сборки проекта Jummah Prayer
-
 .PHONY: all build build-universal build-arm64 build-x86_64 deploy deploy-universal clean clean-universal clean-all test test-universal run run-universal format lint help web-build web-run web-start web-backend-build web-backend-run web-backend-clean
 
 

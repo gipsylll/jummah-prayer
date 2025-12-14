@@ -186,6 +186,101 @@ int main(int argc, char* argv[]) {
         }
     });
     
+    // API: Получить статистику системы
+    server.Get("/api/auth/stats", [&authService, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+        setCorsHeaders(res);
+        res.set_header("Content-Type", "application/json");
+        
+        // Проверка токена
+        std::string authHeader = req.has_header("Authorization") ? req.get_header_value("Authorization") : "";
+        std::string token = AuthService::getTokenFromHeader(authHeader);
+        
+        if (token.empty()) {
+            res.status = 401;
+            res.set_content(JsonService::createResponse(false, "Token required"), "application/json");
+            return;
+        }
+        
+        std::string userId = authService.validateToken(token);
+        if (userId.empty()) {
+            res.status = 401;
+            res.set_content(JsonService::createResponse(false, "Invalid or expired token"), "application/json");
+            return;
+        }
+        
+        // Здесь можно добавить проверку прав доступа (админ или нет)
+        std::string result = authService.getStats();
+        res.status = 200;
+        res.set_content(result, "application/json");
+    });
+    
+    // API: Изменить пароль
+    server.Post("/api/auth/change-password", [&authService, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+        setCorsHeaders(res);
+        res.set_header("Content-Type", "application/json");
+        
+        // Проверка токена
+        std::string authHeader = req.has_header("Authorization") ? req.get_header_value("Authorization") : "";
+        std::string token = AuthService::getTokenFromHeader(authHeader);
+        
+        if (token.empty()) {
+            res.status = 401;
+            res.set_content(JsonService::createResponse(false, "Token required"), "application/json");
+            return;
+        }
+        
+        std::string userId = authService.validateToken(token);
+        if (userId.empty()) {
+            res.status = 401;
+            res.set_content(JsonService::createResponse(false, "Invalid or expired token"), "application/json");
+            return;
+        }
+        
+        try {
+            auto params = JsonService::parseJson(req.body);
+            
+            if (params.find("oldPassword") == params.end() || params.find("newPassword") == params.end()) {
+                res.status = 400;
+                res.set_content(JsonService::createResponse(false, "Old password and new password are required"), "application/json");
+                return;
+            }
+            
+            std::string result = authService.changePassword(userId, params["oldPassword"], params["newPassword"]);
+            if (result.find("\"success\":true") != std::string::npos) {
+                res.status = 200;
+            } else {
+                res.status = 400;
+            }
+            res.set_content(result, "application/json");
+        } catch (const std::exception& e) {
+            res.status = 500;
+            res.set_content(JsonService::createResponse(false, "Server error: " + std::string(e.what())), "application/json");
+        }
+    });
+    
+    // API: Получить информацию о текущем пользователе (с токеном)
+    server.Get("/api/auth/current", [&authService, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+        setCorsHeaders(res);
+        res.set_header("Content-Type", "application/json");
+        
+        std::string authHeader = req.has_header("Authorization") ? req.get_header_value("Authorization") : "";
+        std::string token = AuthService::getTokenFromHeader(authHeader);
+        
+        if (token.empty()) {
+            res.status = 401;
+            res.set_content(JsonService::createResponse(false, "Token required"), "application/json");
+            return;
+        }
+        
+        std::string result = authService.getCurrentUserInfo(token);
+        if (result.find("\"success\":true") != std::string::npos) {
+            res.status = 200;
+        } else {
+            res.status = 401;
+        }
+        res.set_content(result, "application/json");
+    });
+    
     // Функция для получения кода метода для Aladhan API
     auto getMethodCode = [](int method) -> std::string {
         switch (method) {
@@ -755,4 +850,3 @@ int main(int argc, char* argv[]) {
     
     return 0;
 }
-

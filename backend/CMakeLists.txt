@@ -19,6 +19,7 @@ set(BACKEND_SOURCES
     src/JsonService.cpp
     src/AuthService.cpp
     src/CitySearchService.cpp
+    src/DatabaseService.cpp
 )
 
 # Скачиваем cpp-httplib (header-only библиотека)
@@ -30,6 +31,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(httplib)
 
+# Поиск SQLite3
+find_package(SQLite3 REQUIRED)
+
 # Создание исполняемого файла
 add_executable(${PROJECT_NAME}
     ${BACKEND_SOURCES}
@@ -39,10 +43,11 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
     src
     ${httplib_SOURCE_DIR}
+    ${SQLite3_INCLUDE_DIRS}
 )
 
 # Поиск OpenSSL для HTTPS поддержки
-find_package(OpenSSL REQUIRED)
+#find_package(OpenSSL REQUIRED)
 
 # Линковка
 if(APPLE)
@@ -50,6 +55,7 @@ if(APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         OpenSSL::SSL 
         OpenSSL::Crypto
+        SQLite::SQLite3
         "-framework CoreFoundation"
         "-framework Security"
     )
@@ -57,6 +63,7 @@ elseif(UNIX)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         OpenSSL::SSL 
         OpenSSL::Crypto
+        SQLite::SQLite3
         pthread
     )
 endif()
@@ -68,4 +75,3 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "==============================")
 message(STATUS "")
-

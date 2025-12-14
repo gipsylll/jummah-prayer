@@ -1,5 +1,33 @@
 #include "JsonService.h"
 #include <sstream>
+#include <random>
+#include <iomanip>
+
+std::string JsonService::generateUuid() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 15);
+    std::uniform_int_distribution<> dis2(8, 11);
+    
+    std::stringstream ss;
+    ss << std::hex;
+    
+    for (int i = 0; i < 32; i++) {
+        if (i == 8 || i == 12 || i == 16 || i == 20) {
+            ss << "-";
+        }
+        
+        if (i == 12) {
+            ss << 4; // version 4
+        } else if (i == 16) {
+            ss << dis2(gen);
+        } else {
+            ss << dis(gen);
+        }
+    }
+    
+    return ss.str();
+}
 
 std::map<std::string, std::string> JsonService::parseJson(const std::string& json) {
     std::map<std::string, std::string> result;
