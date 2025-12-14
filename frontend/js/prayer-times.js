@@ -5,6 +5,15 @@ async function initPrayerTimes() {
     await loadPrayerTimes();
     updatePrayerInfo();
     updatePrayerTimesList();
+    
+    // Инициализация кнопки обновления
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            await loadPrayerTimes();
+            updatePrayerInfo();
+        });
+    }
 }
 
 async function loadPrayerTimes() {
@@ -104,14 +113,5 @@ function updateCountdown() {
     
     // Обновляем информацию о молитвах
     updatePrayerInfo();
-}
-
-// Кнопка обновления
-const refreshBtn = document.getElementById('refresh-btn');
-if (refreshBtn) {
-    refreshBtn.addEventListener('click', async () => {
-        await loadPrayerTimes();
-        updatePrayerInfo();
-    });
 }
 

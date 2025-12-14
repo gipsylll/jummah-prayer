@@ -204,10 +204,20 @@ function getUpcomingIslamicEvents(date) {
     }
     
     // Добавляем Лайлат аль-Кадр (примерно 27-я ночь Рамадана)
-    let laylatAlQadr = new Date(nextRamadan);
+    // Вычисляем Лайлат аль-Кадр для текущего Рамадана
+    let laylatAlQadr = new Date(ramadanThisYear.start);
     laylatAlQadr.setDate(laylatAlQadr.getDate() + 27);
+    
+    // Если текущая дата уже после Лайлат аль-Кадр текущего Рамадана, используем следующий Рамадан
+    if (date >= laylatAlQadr) {
+        laylatAlQadr = new Date(ramadanNextYear.start);
+        laylatAlQadr.setDate(laylatAlQadr.getDate() + 27);
+    }
+    // Если текущая дата до начала текущего Рамадана, используем текущий Рамадан
+    // (это уже установлено выше)
+    
     const laylatAlQadrDaysLeft = Math.ceil((laylatAlQadr - date) / (1000 * 60 * 60 * 24));
-    if (laylatAlQadrDaysLeft > 0 && date < nextRamadan) {
+    if (laylatAlQadrDaysLeft > 0) {
         events.push({
             name: 'Лайлат аль-Кадр',
             date: laylatAlQadr.toLocaleDateString('ru-RU'),

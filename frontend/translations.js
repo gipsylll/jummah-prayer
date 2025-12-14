@@ -173,6 +173,16 @@ const translations = {
         "en": "Time for prayer",
         "ar": "وقت الصلاة"
     },
+    "Prayer in": {
+        "ru": "Молитва через",
+        "en": "Prayer in",
+        "ar": "الصلاة بعد"
+    },
+    "minutes": {
+        "ru": "минут",
+        "en": "minutes",
+        "ar": "دقائق"
+    },
     // Настройки
     "Location": {
         "ru": "Местоположение",

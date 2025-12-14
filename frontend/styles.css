@@ -1364,3 +1364,358 @@ input:checked + .slider:before {
     color: var(--primary-color);
 }
 
+/* ==================== UI/UX УЛУЧШЕНИЯ ==================== */
+
+/* Плавные переходы между страницами */
+.page {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.page-exit {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.page-enter {
+    animation: pageEnter 0.3s ease;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Анимация появления карточек */
+.card-animate {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.card-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Skeleton Loading */
+.skeleton-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+}
+
+.skeleton-line {
+    height: 16px;
+    background: linear-gradient(90deg, 
+        var(--dividerColor) 25%, 
+        var(--borderColor) 50%, 
+        var(--dividerColor) 75%);
+    background-size: 200% 100%;
+    border-radius: var(--radiusSmall);
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Spinner для кнопок */
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    padding: 12px 20px;
+    background-color: var(--surfaceColor);
+    border-bottom: 1px solid var(--borderColor);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breadcrumbs a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumbs a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.breadcrumb-separator {
+    color: var(--secondaryTextColor);
+}
+
+.breadcrumb-current {
+    color: var(--textColor);
+    font-weight: 500;
+}
+
+/* Quick Actions */
+.quick-actions {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.quick-action-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px var(--shadowColor);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-2px) scale(1.1);
+    box-shadow: 0 6px 16px var(--shadowColor);
+}
+
+.quick-action-btn:active {
+    transform: translateY(0) scale(0.95);
+}
+
+.quick-action-btn span {
+    display: block;
+}
+
+/* Улучшенные hover эффекты */
+.btn:hover,
+.nav-btn:hover,
+.dhikr-item:hover,
+.article-item:hover,
+.event-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadowColor);
+}
+
+/* Анимация счетчика */
+.dhikr-count,
+.countdown-time {
+    transition: transform 0.2s ease;
+}
+
+.dhikr-increment:active + .dhikr-count {
+    transform: scale(1.2);
+}
+
+/* Прогресс-бары с анимацией */
+.progress-bar,
+.dhikr-progress-bar,
+.prayer-time-progress-bar {
+    transition: width 0.5s ease;
+}
+
+/* Клавиатурная навигация */
+.keyboard-navigation *:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Улучшенные тени и градиенты */
+.card,
+.prayer-time-item,
+.dhikr-item,
+.event-card,
+.article-item {
+    box-shadow: 0 2px 8px var(--shadowColorLight);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover,
+.prayer-time-item:hover,
+.dhikr-item:hover,
+.event-card:hover,
+.article-item:hover {
+    box-shadow: 0 4px 16px var(--shadowColor);
+}
+
+/* Градиентные кнопки */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+}
+
+/* Анимация пульсации для важных элементов */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(46, 125, 50, 0);
+    }
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s infinite;
+}
+
+/* Улучшенная доступность - высокий контраст */
+@media (prefers-contrast: high) {
+    :root {
+        --borderColor: #000000;
+        --textColor: #000000;
+        --backgroundColor: #FFFFFF;
+    }
+    
+    [data-theme="dark"] {
+        --borderColor: #FFFFFF;
+        --textColor: #FFFFFF;
+        --backgroundColor: #000000;
+    }
+}
+
+/* Увеличение шрифта для доступности */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Улучшенные модальные окна */
+.modal {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    animation: modalEnter 0.3s ease;
+}
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Анимация счетчика зикра */
+.dhikr-count {
+    font-size: 48px;
+    font-weight: bold;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.dhikr-increment:active ~ .dhikr-count {
+    transform: scale(1.15);
+    color: var(--primary-light);
+}
+
+/* Плавная анимация прогресс-бара */
+.dhikr-progress-bar {
+    background: linear-gradient(90deg, 
+        var(--primary-color) 0%, 
+        var(--primary-light) 100%);
+    height: 100%;
+    border-radius: var(--radiusSmall);
+    transition: width 0.3s ease;
+}
+
+/* Улучшенные иконки */
+.icon {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.icon:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive для Quick Actions */
+@media (max-width: 768px) {
+    .quick-actions {
+        bottom: 90px;
+        right: 16px;
+    }
+    
+    .quick-action-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+    
+    .breadcrumbs {
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+}
+

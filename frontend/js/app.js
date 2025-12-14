@@ -16,6 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initEvents();
     initArticles();
     
+    // Инициализация UI улучшений (должна быть после всех остальных)
+    if (window.initUIEnhancements) {
+        initUIEnhancements();
+    }
+    
     // Обновление обратного отсчета каждую секунду
     setInterval(updateCountdown, 1000);
     

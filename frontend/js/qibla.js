@@ -18,8 +18,8 @@ function updateQiblaDistance() {
     if (!qiblaWidget) return;
     
     const distance = calculateDistanceToMakkah(prayerCalc.latitude, prayerCalc.longitude);
-    // Форматируем только в километрах
-    const km = (distance / 1000).toFixed(1);
+    // calculateDistanceToMakkah уже возвращает расстояние в километрах, поэтому не делим на 1000
+    const km = distance.toFixed(1);
     const distanceText = `${km} км`;
     
     const valueEl = qiblaWidget.querySelector('.widget-value');
