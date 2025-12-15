@@ -748,44 +748,72 @@ input:checked + .slider:before {
 /* Календарь */
 .calendar-container {
     min-width: 300px;
+    background: linear-gradient(135deg, var(--cardBackground) 0%, rgba(46, 125, 50, 0.03) 100%);
+    border-radius: var(--radiusMedium);
+    padding: 24px;
+    border: 1px solid rgba(46, 125, 50, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .calendar-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid rgba(46, 125, 50, 0.15);
 }
 
 .calendar-nav {
-    background: none;
-    border: 1px solid var(--borderColor);
+    background: rgba(46, 125, 50, 0.1);
+    border: 2px solid rgba(46, 125, 50, 0.2);
     border-radius: var(--radiusSmall);
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     cursor: pointer;
     font-size: 18px;
-    color: var(--textColor);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.calendar-nav:hover {
+    background: rgba(46, 125, 50, 0.2);
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+}
+
+.calendar-nav:active {
+    transform: scale(0.95);
 }
 
 .calendar-month {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--textColor);
+    letter-spacing: 0.5px;
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 20px;
 }
 
 .calendar-day-header {
     text-align: center;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--secondaryTextColor);
-    padding: 8px;
+    padding: 12px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 4px;
 }
 
 .calendar-day {
@@ -807,12 +835,16 @@ input:checked + .slider:before {
     background-color: var(--accent-color);
     color: white;
     font-weight: bold;
+    border: 2px solid #ff6f00;
+    box-shadow: 0 2px 4px rgba(255, 111, 0, 0.4);
 }
 
 .calendar-day.selected {
     background-color: var(--primary-color);
     color: white;
     font-weight: bold;
+    border: 2px solid #1b5e20;
+    box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.4);
 }
 
 .calendar-day.other-month {
@@ -1951,5 +1983,525 @@ input:checked + .slider:before {
     font-size: 36px;
     font-weight: bold;
     color: var(--primary-color);
+}
+
+/* Календарь молитв */
+.calendar-prayer-grid .calendar-day {
+    position: relative;
+    min-height: 60px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--borderColor);
+    background: var(--cardBackground);
+    transition: all 0.2s ease;
+}
+
+.calendar-day-number {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.calendar-day-indicator {
+    margin-top: 4px;
+    font-size: 10px;
+}
+
+.calendar-day-stats {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.completed-count {
+    color: #2e7d32;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.missed-count {
+    color: #c62828;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.calendar-day.all-completed {
+    background-color: #2e7d32;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #1b5e20;
+    box-shadow: 0 2px 4px rgba(46, 125, 50, 0.3);
+}
+
+.calendar-day.all-completed .calendar-day-number,
+.calendar-day.all-completed .completed-count {
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.all-missed {
+    background-color: #c62828;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #b71c1c;
+    box-shadow: 0 2px 4px rgba(198, 40, 40, 0.3);
+}
+
+.calendar-day.all-missed .calendar-day-number {
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-day.partially-completed {
+    background-color: #ef6c00;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #e65100;
+    box-shadow: 0 2px 4px rgba(239, 108, 0, 0.3);
+}
+
+.calendar-day.partially-completed .calendar-day-number {
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-stats-card {
+    background: linear-gradient(135deg, var(--cardBackground) 0%, rgba(46, 125, 50, 0.05) 100%);
+    border-radius: var(--radiusMedium);
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(46, 125, 50, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.calendar-stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radiusMedium);
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--secondaryTextColor);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-completed {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.stat-missed {
+    color: #c62828;
+    font-weight: bold;
+}
+
+.stat-percentage {
+    color: var(--primary-color);
+}
+
+.stats-progress {
+    height: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 20px;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stats-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.4);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        transparent 100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.selected-day-prayers {
+    background: linear-gradient(135deg, var(--cardBackground) 0%, rgba(46, 125, 50, 0.03) 100%);
+    border-radius: var(--radiusMedium);
+    padding: 24px;
+    margin-top: 24px;
+    border: 1px solid rgba(46, 125, 50, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.selected-day-prayers h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--textColor);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.prayer-list {
+    margin-top: 16px;
+}
+
+.prayer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+    border-radius: var(--radiusSmall);
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.prayer-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(4px);
+}
+
+.prayer-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.prayer-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--textColor);
+    letter-spacing: 0.3px;
+}
+
+.prayer-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-success {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-danger {
+    background: #f44336;
+    color: white;
+}
+
+/* Статистика */
+.stats-view-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 8px;
+    border-radius: var(--radiusMedium);
+}
+
+.stats-summary-card,
+.chart-card,
+.prayer-stats-card {
+    background: linear-gradient(135deg, var(--cardBackground) 0%, rgba(46, 125, 50, 0.05) 100%);
+    border-radius: var(--radiusMedium);
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(46, 125, 50, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats-summary-card:hover,
+.chart-card:hover,
+.prayer-stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stats-summary-card h3,
+.chart-card h3,
+.prayer-stats-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--textColor);
+    border-bottom: 2px solid rgba(46, 125, 50, 0.15);
+    padding-bottom: 12px;
+}
+
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 220px;
+    margin-top: 24px;
+    gap: 8px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radiusMedium);
+}
+
+.bar-chart-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.bar-chart-bar-container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.bar-chart-bar {
+    width: 100%;
+    background: linear-gradient(to top, var(--primary-color), #2e7d32);
+    border-radius: var(--radiusSmall) var(--radiusSmall) 0 0;
+    min-height: 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 4px;
+    transition: height 0.3s ease;
+    position: relative;
+    box-shadow: 0 -2px 4px rgba(46, 125, 50, 0.3);
+    border: 1px solid rgba(46, 125, 50, 0.3);
+}
+
+.bar-value {
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+}
+
+.bar-chart-label {
+    font-size: 12px;
+    margin-top: 8px;
+    color: var(--secondaryTextColor);
+    text-align: center;
+}
+
+.prayer-stats-list {
+    margin-top: 16px;
+}
+
+.prayer-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radiusSmall);
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.2s ease;
+}
+
+.prayer-stat-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(4px);
+}
+
+.prayer-stat-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.prayer-stat-name {
+    min-width: 90px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--textColor);
+    letter-spacing: 0.3px;
+}
+
+.prayer-stat-bar {
+    flex: 1;
+    height: 24px;
+    background: var(--borderColor);
+    border-radius: var(--radiusSmall);
+    overflow: hidden;
+}
+
+.prayer-stat-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), #2e7d32);
+    transition: width 0.3s ease;
+    box-shadow: 0 2px 4px rgba(46, 125, 50, 0.3);
+}
+
+.prayer-stat-numbers {
+    min-width: 80px;
+    text-align: right;
+    font-size: 14px;
+}
+
+.prayer-stat-numbers .completed {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.prayer-stat-numbers .separator {
+    color: var(--secondaryTextColor);
+    margin: 0 4px;
+}
+
+.prayer-stat-numbers .percentage {
+    color: var(--secondaryTextColor);
+    margin-left: 4px;
+}
+
+.stats-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--cardBackground) 0%, rgba(46, 125, 50, 0.05) 100%);
+    border-radius: var(--radiusMedium);
+    padding: 20px;
+    margin-top: 24px;
+    border: 1px solid rgba(46, 125, 50, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stats-current-period {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--textColor);
+    letter-spacing: 0.3px;
+}
+
+/* История зикров */
+.dhikr-stats-mini {
+    font-size: 12px;
+    color: var(--secondaryTextColor);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--borderColor);
+}
+
+.dhikr-stats-section {
+    margin-top: 16px;
+}
+
+.dhikr-stats-detail {
+    background: var(--backgroundColor);
+    border-radius: var(--radiusSmall);
+    padding: 16px;
+    margin-top: 12px;
+}
+
+.dhikr-history h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--textColor);
+}
+
+.dhikr-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dhikr-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--cardBackground);
+    border-radius: var(--radiusSmall);
+    font-size: 14px;
+}
+
+.completed-badge {
+    color: #2e7d32;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Пустое состояние статистики */
+.empty-stats-message {
+    background: var(--cardBackground);
+    border-radius: var(--radiusMedium);
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.empty-stats-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.empty-stats-message h3 {
+    margin: 0 0 12px 0;
+    color: var(--textColor);
+    font-size: 20px;
+}
+
+.empty-stats-message p {
+    margin: 0;
+    color: var(--secondaryTextColor);
+    font-size: 14px;
+    line-height: 1.5;
 }
 

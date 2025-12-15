@@ -128,3 +128,5 @@ const CitySearchModal = ({ isOpen, onClose, onSelectCity }) => {
 };
 
 export default CitySearchModal;
+
+

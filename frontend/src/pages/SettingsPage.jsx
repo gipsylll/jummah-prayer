@@ -72,7 +72,7 @@ const SettingsPage = () => {
                     alert(`Местоположение определено: ${cityData.name}`);
                 } catch (error) {
                     console.error('Ошибка получения названия города:', error);
-                    setLocation(lat, lon, `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`);
+                    setLocation(lat, lon, 'Неизвестное место');
                     await loadPrayerTimes();
                     alert('Местоположение определено по координатам');
                 } finally {
@@ -272,6 +272,25 @@ const SettingsPage = () => {
                     </div>
                 </div>
 
+                {/* Статистика и отслеживание */}
+                <div className="settings-section">
+                    <h2>{tr('Tracking and Statistics') || 'Отслеживание и статистика'}</h2>
+                    <button
+                        className="btn btn-outline"
+                        style={{ width: '100%' }}
+                        onClick={() => navigate('/calendar')}
+                    >
+                        📅 {tr('Prayer Calendar') || 'Календарь молитв'}
+                    </button>
+                    <button
+                        className="btn btn-outline"
+                        style={{ width: '100%', marginTop: '8px' }}
+                        onClick={() => navigate('/stats')}
+                    >
+                        📊 {tr('Statistics') || 'Статистика'}
+                    </button>
+                </div>
+
                 {/* Аккаунт */}
                 <div className="settings-section">
                     <h2>{tr('Account')}</h2>
@@ -328,3 +347,5 @@ const SettingsPage = () => {
 };
 
 export default SettingsPage;
+
+

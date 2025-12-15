@@ -31,3 +31,5 @@ export const formatDistance = (km) => {
         return (km / 1000).toFixed(1) + ' тыс. км';
     }
 };
+
+

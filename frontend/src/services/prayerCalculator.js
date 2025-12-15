@@ -12,13 +12,30 @@ class PrayerTimesCalculator {
         this.loadSettings();
     }
     
+    // Проверка, является ли строка координатами
+    isCoordinateString(str) {
+        if (!str || typeof str !== 'string') return false;
+        // Проверяем паттерны типа "43.41°N, 39.95°E" или "43.41°N"
+        return /°[NSEW]|\d+\.?\d*,\s*\d+\.?\d*/.test(str);
+    }
+    
     loadSettings() {
         const saved = localStorage.getItem('prayerSettings');
         if (saved) {
             const settings = JSON.parse(saved);
             this.latitude = settings.latitude || this.latitude;
             this.longitude = settings.longitude || this.longitude;
-            this.city = settings.city || this.city;
+            
+            // Проверяем, что название города не является координатами
+            const cityName = settings.city || this.city;
+            if (this.isCoordinateString(cityName)) {
+                // Если это координаты, заменяем на стандартное значение
+                this.city = "Неизвестное место";
+                this.saveSettings(); // Сохраняем исправленное значение
+            } else {
+                this.city = cityName;
+            }
+            
             this.calculationMethod = settings.calculationMethod || this.calculationMethod;
             this.madhhab = settings.madhhab || this.madhhab;
         }
@@ -37,8 +54,16 @@ class PrayerTimesCalculator {
     setLocation(lat, lon, cityName = '') {
         this.latitude = lat;
         this.longitude = lon;
-        if (cityName) {
+        
+        // Проверяем, что cityName не является координатами
+        if (cityName && !this.isCoordinateString(cityName)) {
+            // Устанавливаем название города только если это не координаты
             this.city = cityName;
+        } else {
+            // Если переданы координаты или пустое значение, используем стандартное
+            this.city = this.city && !this.isCoordinateString(this.city) 
+                ? this.city 
+                : "Неизвестное место";
         }
         this.saveSettings();
     }
@@ -197,3 +222,5 @@ class PrayerTimesCalculator {
 }
 
 export default PrayerTimesCalculator;
+
+

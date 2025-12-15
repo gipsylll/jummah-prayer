@@ -25,3 +25,5 @@ const PrayerTimeCard = ({ prayer, time, isCurrent, isNext }) => {
 };
 
 export default PrayerTimeCard;
+
+

@@ -133,6 +133,24 @@ export const PrayerTrackingProvider = ({ children }) => {
         };
     }, [tracking]);
 
+    // Очистить отметку молитвы
+    const clearPrayerMark = useCallback((date, prayerName) => {
+        const dateKey = typeof date === 'string' ? date : getDateKey(date);
+        setTracking(prev => {
+            const newData = { ...prev };
+            if (newData[dateKey]) {
+                const dayData = { ...newData[dateKey] };
+                delete dayData[prayerName.toLowerCase()];
+                if (Object.keys(dayData).length === 0) {
+                    delete newData[dateKey];
+                } else {
+                    newData[dateKey] = dayData;
+                }
+            }
+            return newData;
+        });
+    }, []);
+
     // Получить все данные
     const getAllTracking = useCallback(() => {
         return tracking;
@@ -142,6 +160,7 @@ export const PrayerTrackingProvider = ({ children }) => {
         <PrayerTrackingContext.Provider value={{
             markPrayerCompleted,
             markPrayerMissed,
+            clearPrayerMark,
             getPrayerStatus,
             getDayData,
             getMonthStats,
@@ -152,3 +171,5 @@ export const PrayerTrackingProvider = ({ children }) => {
         </PrayerTrackingContext.Provider>
     );
 };
+
+

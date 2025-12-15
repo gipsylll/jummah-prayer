@@ -28,3 +28,5 @@ export default defineConfig({
   // Правильная обработка путей в production
   base: process.env.VITE_BASE_PATH || '/'
 })
+
+

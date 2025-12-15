@@ -27,3 +27,5 @@ export const getHijriDate = () => {
         formatted: `${hijriYear} г.`
     };
 };
+
+

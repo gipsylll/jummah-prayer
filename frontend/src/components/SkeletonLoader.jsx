@@ -12,3 +12,5 @@ const SkeletonLoader = ({ lines = 2, className = '' }) => {
 };
 
 export default SkeletonLoader;
+
+

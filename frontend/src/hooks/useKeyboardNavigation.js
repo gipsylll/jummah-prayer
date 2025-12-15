@@ -80,3 +80,5 @@ export const useKeyboardNavigation = () => {
         };
     }, [navigate, toggleTheme, loadPrayerTimes]);
 };
+
+

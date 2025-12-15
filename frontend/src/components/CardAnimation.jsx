@@ -42,3 +42,5 @@ const CardAnimation = ({ children, delay = 0, className = '' }) => {
 };
 
 export default CardAnimation;
+
+

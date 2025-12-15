@@ -172,3 +172,5 @@ export const exportMonthlyPrayerTimes = (prayerTimes, city, startDate = new Date
 export const exportYearlyPrayerTimes = (prayerTimes, city, startDate = new Date()) => {
     return exportPrayerTimesToICS(prayerTimes, city, startDate, 365);
 };
+
+

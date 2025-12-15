@@ -102,3 +102,5 @@ export const PrayerTimesProvider = ({ children }) => {
         </PrayerTimesContext.Provider>
     );
 };
+
+

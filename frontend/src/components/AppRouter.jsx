@@ -8,6 +8,8 @@ import RegisterPage from '../pages/RegisterPage';
 import DhikrPage from '../pages/DhikrPage';
 import EventsPage from '../pages/EventsPage';
 import ArticlesPage from '../pages/ArticlesPage';
+import PrayerCalendarPage from '../pages/PrayerCalendarPage';
+import StatsPage from '../pages/StatsPage';
 
 const AppRouter = () => {
     return (
@@ -20,8 +22,12 @@ const AppRouter = () => {
             <Route path="/dhikr" element={<DhikrPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/articles" element={<ArticlesPage />} />
+            <Route path="/calendar" element={<PrayerCalendarPage />} />
+            <Route path="/stats" element={<StatsPage />} />
         </Routes>
     );
 };
 
 export default AppRouter;
+
+

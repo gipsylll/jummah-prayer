@@ -36,11 +36,13 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <PrayerTimesProvider>
-            <NotificationsProvider>
-              <AccessibilityProvider>
-                <AppContent />
-              </AccessibilityProvider>
-            </NotificationsProvider>
+            <PrayerTrackingProvider>
+              <NotificationsProvider>
+                <AccessibilityProvider>
+                  <AppContent />
+                </AccessibilityProvider>
+              </NotificationsProvider>
+            </PrayerTrackingProvider>
           </PrayerTimesProvider>
         </AuthProvider>
       </ThemeProvider>
@@ -49,3 +51,5 @@ function App() {
 }
 
 export default App
+
+

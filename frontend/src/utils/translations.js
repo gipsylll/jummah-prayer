@@ -69,7 +69,11 @@ const translations = {
     "Yesterday": { ru: "Вчера", en: "Yesterday", ar: "أمس" },
     "Today": { ru: "Сегодня", en: "Today", ar: "اليوم" },
     "Tomorrow": { ru: "Завтра", en: "Tomorrow", ar: "غدا" },
-    "Close": { ru: "Закрыть", en: "Close", ar: "إغلاق" }
+    "Close": { ru: "Закрыть", en: "Close", ar: "إغلاق" },
+    "Prayer Calendar": { ru: "Календарь молитв", en: "Prayer Calendar", ar: "تقويم الصلاة" },
+    "Statistics": { ru: "Статистика", en: "Statistics", ar: "الإحصاءات" },
+    "Prayers for": { ru: "Молитвы за", en: "Prayers for", ar: "الصلوات لـ" },
+    "Tracking and Statistics": { ru: "Отслеживание и статистика", en: "Tracking and Statistics", ar: "التتبع والإحصاءات" }
 };
 
 let currentLanguage = localStorage.getItem('language') || 'ru';
@@ -84,3 +88,5 @@ export const tr = (key) => {
 };
 
 export const getCurrentLanguage = () => currentLanguage;
+
+

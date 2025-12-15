@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePrayerTimes } from '../contexts/PrayerTimesContext';
 import { useNotifications } from '../contexts/NotificationsContext';
 import { tr } from '../utils/translations';
@@ -12,6 +13,7 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import DatePicker from '../components/DatePicker';
 
 const MainPage = () => {
+    const navigate = useNavigate();
     const { prayerTimes, countdown, currentPrayer, nextPrayer, city, loading, latitude, longitude, loadPrayerTimes, selectedDate } = usePrayerTimes();
     const { notifications } = useNotifications();
     const [qiblaDistance, setQiblaDistance] = useState('---');
@@ -128,6 +130,24 @@ const MainPage = () => {
                 </div>
             </div>
 
+            {/* Быстрые ссылки */}
+            <div className="quick-links" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <button
+                    className="btn btn-outline"
+                    onClick={() => navigate('/calendar')}
+                    style={{ flex: '1', minWidth: '140px' }}
+                >
+                    📅 {tr('Prayer Calendar') || 'Календарь'}
+                </button>
+                <button
+                    className="btn btn-outline"
+                    onClick={() => navigate('/stats')}
+                    style={{ flex: '1', minWidth: '140px' }}
+                >
+                    📊 {tr('Statistics') || 'Статистика'}
+                </button>
+            </div>
+
             {/* Кнопки управления */}
             <div className="date-controls" style={{ padding: '16px', display: 'flex', gap: '8px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div className="date-display">
@@ -211,3 +231,5 @@ const MainPage = () => {
 };
 
 export default MainPage;
+
+

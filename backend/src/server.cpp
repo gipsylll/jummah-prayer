@@ -22,15 +22,51 @@
 
 
 int main(int argc, char* argv[]) {
+    std::cout << "🚀 [SERVER] Запуск сервера Jummah Prayer Backend..." << std::endl;
+    std::cout.flush();
+    
     httplib::Server server;
     PrayerTimesCalculator calculator;
     AuthService authService;
     
+    std::cout << "🔧 [SERVER] Инициализация сервисов..." << std::endl;
+    std::cout.flush();
+    
     // Определяем путь к веб-файлам
     std::string webRoot = FileService::findWebRoot(argc, argv);
     if (webRoot.empty()) {
+        std::cerr << "❌ [SERVER] Не удалось найти путь к веб-файлам!" << std::endl;
+        std::cerr.flush();
         return 1;
     }
+    std::cout << "✅ [SERVER] Веб-корень: " << webRoot << std::endl;
+    std::cout.flush();
+    
+    // Логирование всех запросов (БОЛЕЕ ДЕТАЛЬНОЕ)
+    server.set_logger([](const httplib::Request& req, const httplib::Response& res) {
+        std::cout << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << std::endl;
+        std::cout << "📥 [REQUEST] " << req.method << " " << req.path;
+        if (!req.params.empty()) {
+            std::cout << "?";
+            bool first = true;
+            for (const auto& param : req.params) {
+                if (!first) std::cout << "&";
+                std::cout << param.first << "=" << param.second;
+                first = false;
+            }
+        }
+        std::cout << std::endl;
+        std::cout << "📤 [RESPONSE] Status: " << res.status << std::endl;
+        std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << std::endl;
+        std::cout.flush();
+    });
+    
+    // Логирование ошибок
+    server.set_error_handler([](const httplib::Request& req, httplib::Response& res) {
+        std::cerr << "\n❌ [ERROR HANDLER] Ошибка обработки запроса: " << req.method << " " << req.path << std::endl;
+        std::cerr << "   Статус: " << res.status << std::endl;
+        std::cerr.flush();
+    });
     
     // CORS headers
     auto setCorsHeaders = [](httplib::Response& res) {
@@ -298,10 +334,13 @@ int main(int argc, char* argv[]) {
     auto httpGetAladhan = [&getMethodCode](double lat, double lon, int method, int madhhab, int year, int month, int day) -> std::string {
         std::cout << "🕌 Запрос времени молитв из Aladhan API" << std::endl;
         
+        std::cout << "🌐 [Aladhan] Подключение к api.aladhan.com..." << std::endl;
+        std::cout.flush();
+        
         httplib::SSLClient cli("api.aladhan.com", 443);
         cli.set_follow_location(true);
-        cli.set_connection_timeout(10);
-        cli.set_read_timeout(10);
+        cli.set_connection_timeout(30);  // Увеличено с 10 до 30 секунд
+        cli.set_read_timeout(30);        // Увеличено с 10 до 30 секунд
         
         // Формируем дату в формате DD-MM-YYYY для явного указания григорианского календаря
         // Aladhan API интерпретирует YYYY-MM-DD как хиджру, а DD-MM-YYYY как григорианский календарь
@@ -326,20 +365,37 @@ int main(int argc, char* argv[]) {
         };
         
         std::string fullUrl = url.str();
-        std::cout << "🌐 Запрос к Aladhan: https://api.aladhan.com" << fullUrl << std::endl;
-        std::cout << "   Дата запроса: " << dateStr.str() << std::endl;
+        std::cout << "🌐 [Aladhan] Запрос к: https://api.aladhan.com" << fullUrl << std::endl;
+        std::cout << "   [Aladhan] Дата запроса: " << dateStr.str() << std::endl;
+        std::cout.flush();
+        
+        std::cout << "🌐 [Aladhan] Выполнение HTTP GET запроса..." << std::endl;
+        std::cout.flush();
         
         auto response = cli.Get(fullUrl.c_str(), headers);
-        if (response && response->status == 200) {
-            std::cout << "✅ Получен ответ от Aladhan, размер: " << response->body.size() << " байт" << std::endl;
-            return response->body;
-        } else {
-            std::cout << "❌ Ошибка подключения к Aladhan API" << std::endl;
-            if (response) {
-                std::cout << "   Статус: " << response->status << std::endl;
-                std::cout << "   Тело ответа: " << response->body.substr(0, 200) << std::endl;
+        
+        std::cout << "🌐 [Aladhan] Ответ получен" << std::endl;
+        std::cout.flush();
+        if (response) {
+            std::cout << "✅ [Aladhan] Получен ответ, статус: " << response->status << ", размер: " << response->body.size() << " байт" << std::endl;
+            std::cout.flush();
+            
+            if (response->status == 200) {
+                std::cout << "✅ [Aladhan] Успешный ответ, возвращаем данные" << std::endl;
+                std::cout.flush();
+                return response->body;
+            } else {
+                std::cout << "❌ [Aladhan] Ошибка HTTP статус: " << response->status << std::endl;
+                std::cout << "   [Aladhan] Тело ответа (первые 200 символов): " << response->body.substr(0, 200) << std::endl;
+                std::cout.flush();
             }
+        } else {
+            std::cout << "❌ [Aladhan] Не удалось получить ответ (response == nullptr)" << std::endl;
+            std::cout.flush();
         }
+        
+        std::cout << "❌ [Aladhan] Возвращаем пустую строку" << std::endl;
+        std::cout.flush();
         return "";
     };
     
@@ -515,8 +571,18 @@ int main(int argc, char* argv[]) {
         return {"", ""};
     };
     
+    std::cout << "🔌 [SERVER] Регистрация обработчика /api/prayer-times..." << std::endl;
+    std::cout.flush();
+    
     // API: Получить время молитв из Aladhan API
     server.Get("/api/prayer-times", [&httpGetAladhan, &extractJsonValue, &calculator, &setCorsHeaders](const httplib::Request& req, httplib::Response& res) {
+        std::cout << "\n🕌🕌🕌 [API] ОБРАБОТЧИК ВЫЗВАН: /api/prayer-times 🕌🕌🕌" << std::endl;
+        std::cout << "   Метод: " << req.method << std::endl;
+        std::cout << "   Путь: " << req.path << std::endl;
+        std::cout << "   Версия: " << req.version << std::endl;
+        std::cout << "   Количество параметров: " << req.params.size() << std::endl;
+        std::cout.flush();  // Принудительно выводим логи
+        
         setCorsHeaders(res);
         
         // Отключаем кэширование ответа
@@ -524,14 +590,23 @@ int main(int argc, char* argv[]) {
         res.set_header("Pragma", "no-cache");
         res.set_header("Expires", "0");
         
+        try {
+        
         // Парсинг параметров
+        std::cout << "📋 [API] Парсинг параметров запроса..." << std::endl;
+        std::cout.flush();
+        
         std::map<std::string, std::string> params;
         for (const auto& param : req.params) {
             params[param.first] = param.second;
+            std::cout << "   Параметр: " << param.first << " = " << param.second << std::endl;
         }
+        std::cout.flush();
         
         // Получаем координаты
         if (params.find("lat") == params.end() || params.find("lon") == params.end()) {
+            std::cout << "❌ [API] Отсутствуют обязательные параметры lat/lon" << std::endl;
+            std::cout.flush();
             res.status = 400;
             res.set_content("{\"success\": false, \"error\": \"lat and lon parameters are required\"}", "application/json");
             return;
@@ -541,13 +616,19 @@ int main(int argc, char* argv[]) {
         try {
             lat = std::stod(params["lat"]);
             lon = std::stod(params["lon"]);
+            std::cout << "✅ [API] Координаты: lat=" << lat << ", lon=" << lon << std::endl;
+            std::cout.flush();
         } catch (const std::exception& e) {
+            std::cout << "❌ [API] Ошибка парсинга координат: " << e.what() << std::endl;
+            std::cout.flush();
             res.status = 400;
             res.set_content("{\"success\": false, \"error\": \"Invalid latitude or longitude\"}", "application/json");
             return;
         }
         
         std::string city = (params.find("city") != params.end()) ? params["city"] : "";
+        std::cout << "✅ [API] Город: " << city << std::endl;
+        std::cout.flush();
         
         // Получаем метод и мазхаб
         int method = 3; // Makkah по умолчанию
@@ -556,13 +637,22 @@ int main(int argc, char* argv[]) {
         if (params.find("method") != params.end()) {
             try {
                 method = std::stoi(params["method"]);
-            } catch (const std::exception& e) {}
+                std::cout << "✅ [API] Метод: " << method << std::endl;
+            } catch (const std::exception& e) {
+                std::cout << "⚠️  [API] Ошибка парсинга method, используем значение по умолчанию: 3" << std::endl;
+            }
         }
+        std::cout.flush();
+        
         if (params.find("madhhab") != params.end()) {
             try {
                 madhhab = std::stoi(params["madhhab"]);
-            } catch (const std::exception& e) {}
+                std::cout << "✅ [API] Мазхаб: " << madhhab << std::endl;
+            } catch (const std::exception& e) {
+                std::cout << "⚠️  [API] Ошибка парсинга madhhab, используем значение по умолчанию: 0" << std::endl;
+            }
         }
+        std::cout.flush();
         
         // Получаем дату
         std::time_t t = std::time(nullptr);
@@ -581,10 +671,26 @@ int main(int argc, char* argv[]) {
             try { day = std::stoi(params["day"]); } catch (const std::exception& e) {}
         }
         
+        std::cout << "✅ [API] Дата: " << year << "-" << month << "-" << day << std::endl;
+        std::cout.flush();
+        
+        std::cout << "📡 [API] Параметры запроса: lat=" << lat << ", lon=" << lon 
+                  << ", city=" << city << ", method=" << method 
+                  << ", date=" << year << "-" << month << "-" << day << std::endl;
+        std::cout.flush();
+        
         // Запрос к Aladhan API
+        std::cout << "📡 [API] Вызов httpGetAladhan..." << std::endl;
+        std::cout.flush();
+        
         std::string apiResponse = httpGetAladhan(lat, lon, method, madhhab, year, month, day);
         
+        std::cout << "📡 [API] Ответ от httpGetAladhan получен, размер: " << apiResponse.size() << " байт" << std::endl;
+        std::cout.flush();
+        
         if (apiResponse.empty()) {
+            std::cout << "⚠️ [API] Пустой ответ от Aladhan API" << std::endl;
+            std::cout.flush();
             res.status = 500;
             res.set_content("{\"success\": false, \"error\": \"Failed to fetch prayer times from API\"}", "application/json");
             return;
@@ -655,7 +761,25 @@ int main(int argc, char* argv[]) {
         json << "  }\n";
         json << "}";
         
-        res.set_content(json.str(), "application/json");
+        std::string jsonResponse = json.str();
+        std::cout << "✅ [API] JSON ответ сформирован, размер: " << jsonResponse.size() << " байт" << std::endl;
+        std::cout.flush();
+        
+        res.set_content(jsonResponse, "application/json");
+        
+        std::cout << "✅ [API] Ответ установлен, статус: " << res.status << std::endl;
+        std::cout.flush();
+        } catch (const std::exception& e) {
+            std::cerr << "❌ Ошибка обработки запроса /api/prayer-times: " << e.what() << std::endl;
+            res.status = 500;
+            std::ostringstream errorJson;
+            errorJson << "{\"success\": false, \"error\": \"Internal server error: " << e.what() << "\"}";
+            res.set_content(errorJson.str(), "application/json");
+        } catch (...) {
+            std::cerr << "❌ Неизвестная ошибка при обработке запроса /api/prayer-times" << std::endl;
+            res.status = 500;
+            res.set_content("{\"success\": false, \"error\": \"Internal server error\"}", "application/json");
+        }
     });
     
     // API: Поиск городов через Nominatim (OpenStreetMap)
@@ -840,13 +964,18 @@ int main(int argc, char* argv[]) {
         setCorsHeaders(res);
     });
     
-    std::cout << "Сервер запущен на http://localhost:8080\n";
-    std::cout << "Откройте http://localhost:8080 в браузере\n";
+    std::cout << "🚀 Сервер запущен на http://localhost:8080\n";
+    std::cout << "📡 Ожидание запросов...\n";
+    std::cout.flush();
     
     if (!server.listen("0.0.0.0", 8080)) {
-        std::cerr << "Ошибка запуска сервера!\n";
+        std::cerr << "❌ Ошибка запуска сервера на порту 8080!\n";
+        std::cerr.flush();
         return 1;
     }
+    
+    std::cout << "✅ Сервер остановлен\n";
+    std::cout.flush();
     
     return 0;
 }
